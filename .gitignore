@@ -1,0 +1,33 @@
+# User-specific BMad configuration
+_bmad/config.user.toml
+_bmad/**/config.user.*
+
+# Temporary UX generation files
+_bmad-output/**/.working/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+coverage/
+.next/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+.DS_Store
+

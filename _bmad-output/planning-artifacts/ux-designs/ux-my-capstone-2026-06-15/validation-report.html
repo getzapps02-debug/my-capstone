@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shortfall Investigator - UX Validation</title>
+<style>
+:root{--bg:#fafaf9;--surface:#fff;--border:#e7e5e4;--text:#1c1917;--muted:#78716c;--ok:#4d7c0f;--warn:#b45309}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 system-ui,sans-serif}
+main{max-width:900px;margin:auto;padding:32px 24px 64px}h1{font-size:24px;margin:0 0 4px}.sub{color:var(--muted);margin-bottom:24px}
+.summary,.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}.tag{font-weight:700;color:var(--ok)}
+.pending{color:var(--warn)}details{background:#fff;border:1px solid var(--border);border-radius:8px;margin:12px 0;padding:12px 16px}
+summary{cursor:pointer;font-weight:700}code{font-family:ui-monospace,monospace}
+</style>
+</head>
+<body><main>
+<h1>Shortfall Investigator - UX Design Validation</h1>
+<div class="sub">ux-my-capstone-2026-06-15</div>
+<div class="summary"><p>The initial pair was coherent but underspecified for downstream implementation. The rubric and accessibility findings have been incorporated into the current spines; visual-reference promotion is the remaining finalization item.</p></div>
+<div class="grid">
+<div class="card">Flow coverage<br><span class="tag">Adequate after remediation</span></div>
+<div class="card">Token completeness<br><span class="tag">Adequate after remediation</span></div>
+<div class="card">Component coverage<br><span class="tag">Adequate after remediation</span></div>
+<div class="card">State coverage<br><span class="tag">Adequate after remediation</span></div>
+<div class="card">Visual references<br><span class="tag pending">Pending promotion</span></div>
+<div class="card">Bloat and overspecification<br><span class="tag">Strong</span></div>
+<div class="card">Inheritance discipline<br><span class="tag">Adequate after remediation</span></div>
+<div class="card">Shape fit<br><span class="tag">Adequate after remediation</span></div>
+</div>
+<details open><summary>Rubric review</summary><p>Three high, eight medium, and one low initial findings. Remediation added FR traceability, complete component and state contracts, contrast commitments, inheritance boundaries, and anti-pattern guidance.</p><p>Source: <code>review-rubric.md</code></p></details>
+<details open><summary>Accessibility review</summary><p>Six high, five medium, and one low initial findings. Remediation added explicit keyboard models, focus restoration, chart/table equivalence, live-region behavior, reflow, Replay semantics, financial formatting, provenance association, focus metrics, and target-size rules.</p><p>Source: <code>review-accessibility.md</code></p></details>
+<footer class="sub">Generated 2026-06-15 | DESIGN.md + EXPERIENCE.md</footer>
+</main></body></html>
+
