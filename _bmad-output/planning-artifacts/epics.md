@@ -973,3 +973,363 @@ So that I can control what financial records remain in my local environment.
 **When** single Account deletion, Sample Data reset, clear-all, cancellation, and failure rollback are tested
 **Then** local records and derived findings are removed only within the confirmed scope
 **And** no deletion operation requires external services.
+
+## Epic 4: Guided Shortfall Investigation and Contributor Evidence
+
+Denzo can define a Safety Threshold, select a Shortfall, choose Investigation and Comparable Periods, receive defensible ranked Contributors, and inspect the evidence behind each finding.
+
+### Story 4.1: Define Safety Threshold
+
+As a local investigator,
+I want to set and update a Safety Threshold for an Account,
+So that I can identify balance periods that count as Shortfalls for my investigation.
+
+**Acceptance Criteria:**
+
+**Given** I select an investigation-ready Account
+**When** I enter a Safety Threshold amount
+**Then** the threshold is saved for that Account
+**And** the amount is displayed with the Account Currency rounded to two decimal places.
+
+**Given** a Safety Threshold exists
+**When** I update the threshold
+**Then** qualifying Shortfalls refresh immediately
+**And** any downstream Investigation Period, Comparable Period, Contributor findings, charts, or Replay state affected by the change is marked stale until recomputed.
+
+**Given** the Safety Threshold is displayed in Shortfall or Investigation context
+**When** I view charts, lists, period controls, or readiness summaries
+**Then** the current threshold is visible or available in accessible text
+**And** meaning does not depend on color alone.
+
+**Given** I enter an invalid threshold value
+**When** validation runs
+**Then** the affected field shows a specific adjacent error message
+**And** the previous valid threshold remains active.
+
+**Given** I use only the keyboard or assistive technology
+**When** I set or update the threshold
+**Then** the control is reachable, labeled, and announced clearly
+**And** focus moves to a logical confirmation or Shortfall preview.
+
+**Given** threshold tests run
+**When** thresholds are created, updated, rejected, and used to refresh Shortfall eligibility
+**Then** calculations use integer minor units and Account Currency
+**And** results are deterministic for identical inputs.
+
+### Story 4.2: Identify and Select Shortfalls
+
+As a local investigator,
+I want to view and select qualifying Shortfall periods,
+So that I can choose the specific balance decline I want to investigate.
+
+**Acceptance Criteria:**
+
+**Given** an Account has a valid Safety Threshold and balance history
+**When** Shortfalls are calculated
+**Then** periods below the Safety Threshold are identified deterministically
+**And** a Shortfall does not require a negative Account Balance.
+
+**Given** qualifying Shortfalls exist
+**When** I open Shortfall selection
+**Then** Shortfalls are shown on the historical Account Balance chart and in an accessible list
+**And** each Shortfall includes date range, lowest balance, threshold, and Account Currency.
+
+**Given** I select a Shortfall from the chart or accessible list
+**When** the selection is saved
+**Then** exactly one Shortfall is selected for the Investigation
+**And** the selected Shortfall remains synchronized across chart, list, and period controls.
+
+**Given** no qualifying Shortfall exists
+**When** Shortfall selection is displayed
+**Then** the system states that no Account Balance period fell below the current Safety Threshold
+**And** it offers threshold adjustment without fabricating a Shortfall.
+
+**Given** I use keyboard or assistive technology
+**When** I navigate Shortfall selection
+**Then** chart points and list rows are reachable and operable
+**And** chart meaning is also available through text summary and tabular data.
+
+**Given** Shortfall selection tests run
+**When** fixtures include no Shortfalls, one Shortfall, multiple Shortfalls, threshold changes, and same-day Transactions
+**Then** selected Shortfalls and chart/list synchronization are deterministic
+**And** no selection copy implies cause, blame, or advice.
+
+### Story 4.3: Propose and Adjust Investigation Period
+
+As a local investigator,
+I want the app to propose an Investigation Period that I can adjust,
+So that the analysis focuses on the relevant balance decline window without hiding the period rules.
+
+**Acceptance Criteria:**
+
+**Given** I select a qualifying Shortfall
+**When** the Investigation Period is proposed
+**Then** the default start is the most recent point before the Shortfall where Account Balance was at or above the Safety Threshold
+**And** the default end is the lowest Account Balance before recovery to or above the Safety Threshold.
+
+**Given** the selected Shortfall does not recover to or above the Safety Threshold
+**When** the Investigation Period is proposed
+**Then** the default end is the latest Transaction
+**And** the limitation is disclosed in the period explanation.
+
+**Given** an Investigation Period is displayed
+**When** I shorten or extend the start or end date
+**Then** eligible evidence previews refresh immediately
+**And** downstream findings, charts, and Replay state affected by the change are unavailable or marked stale until recomputed.
+
+**Given** I enter an invalid or incomplete period
+**When** validation runs
+**Then** my entered values are preserved
+**And** the app identifies the correction needed before findings can be produced.
+
+**Given** period context is shown visually
+**When** I inspect the chart, summary, or table alternative
+**Then** Investigation Period boundaries, Safety Threshold, selected Shortfall, and threshold crossing are identifiable
+**And** meaning does not depend on color, hover, or motion alone.
+
+**Given** Investigation Period tests run
+**When** fixtures include recovered Shortfalls, unrecovered Shortfalls, adjusted periods, invalid periods, and same-day events
+**Then** default period proposals and evidence refresh behavior are deterministic
+**And** period copy does not imply causality or financial advice.
+
+### Story 4.4: Select Comparable Period
+
+As a local investigator,
+I want the app to propose and let me adjust a Comparable Period,
+So that Contributor analysis can disclose whether changes are being compared to a valid prior window.
+
+**Acceptance Criteria:**
+
+**Given** an Investigation Period exists
+**When** the Comparable Period is proposed
+**Then** the default Comparable Period immediately precedes the Investigation Period
+**And** it has the same number of calendar days.
+
+**Given** the proposed Comparable Period has incomplete or unavailable data
+**When** the period controls render
+**Then** the app discloses the limitation clearly
+**And** Contributor ranking later omits deviation unless a valid Comparable Period is available.
+
+**Given** I select a different Comparable Period date range
+**When** validation succeeds
+**Then** the selected range is saved for the Investigation
+**And** eligible comparison evidence previews refresh immediately.
+
+**Given** I enter an invalid Comparable Period
+**When** validation runs
+**Then** my entered values are preserved
+**And** the app identifies the correction needed without producing comparison-based findings.
+
+**Given** comparison context is shown in chart, summary, table, or future Contributor evidence
+**When** I inspect it
+**Then** the Comparison Basis is visible and accessible
+**And** the app distinguishes unavailable comparison data from a zero-value comparison.
+
+**Given** Comparable Period tests run
+**When** fixtures include complete comparison data, incomplete data, unavailable data, adjusted ranges, and invalid ranges
+**Then** comparison eligibility and deviation availability are deterministic
+**And** language states comparison limits without causal claims or advice.
+
+### Story 4.5: Enforce Minimum Evidence Before Ranking
+
+As a local investigator,
+I want the app to refuse Contributor ranking when required evidence is missing or inconsistent,
+So that I am not shown speculative explanations.
+
+**Acceptance Criteria:**
+
+**Given** an Investigation has one Account, balance evidence, complete Transaction Dates and Amounts, a valid Safety Threshold, and reconciled or explicitly accepted balance status
+**When** Minimum Evidence is evaluated
+**Then** the Investigation is eligible for Contributor ranking
+**And** the evidence basis is visible in the Investigation context.
+
+**Given** required evidence is missing or inconsistent
+**When** Minimum Evidence is evaluated
+**Then** the system does not rank Contributors
+**And** it lists every missing or inconsistent input with a corrective path.
+
+**Given** Account Balance reconciliation is unresolved
+**When** the user attempts to view ranked Contributors
+**Then** the system refuses ranking
+**And** it routes the user to resolve or explicitly accept the reconciliation difference.
+
+**Given** no defensible Contributor exists even though Minimum Evidence is present
+**When** ranking would otherwise run
+**Then** the system states that available evidence does not support a ranked explanation
+**And** it does not fabricate Contributors.
+
+**Given** insufficient-evidence state is displayed
+**When** I inspect limitations
+**Then** each limitation is adjacent to the affected Investigation context
+**And** limitation wording avoids blame, advice, and causal conclusions.
+
+**Given** Minimum Evidence tests run
+**When** fixtures include complete evidence, missing Account, missing balance evidence, incomplete dates or amounts, invalid threshold, unresolved reconciliation, and no defensible Contributors
+**Then** each fixture produces the expected eligibility or refusal state
+**And** no refusal path requires external services or hidden assumptions.
+
+### Story 4.6: Determine Eligible Contributors
+
+As a local investigator,
+I want eligible Transactions and linked Obligations grouped into Contributors,
+So that the Investigation shows only evidence-supported contributors to the balance decline.
+
+**Acceptance Criteria:**
+
+**Given** Minimum Evidence is satisfied for an Investigation Period
+**When** Contributor eligibility is calculated
+**Then** eligible Transactions that reduced the available buffer are grouped into Contributors
+**And** every Contributor links back to its source Transactions.
+
+**Given** Transactions are duplicates or marked as Transfers
+**When** Contributor eligibility is calculated
+**Then** duplicate Transactions and Transfers are excluded
+**And** exclusions are visible as evidence limitations where relevant.
+
+**Given** Refunds are linked to affected Transactions or Contributor groups
+**When** Contributor impact is calculated
+**Then** linked Refunds reduce the monetary impact of their related Contributor
+**And** unresolved Refunds are shown as limitations instead of silently altering results.
+
+**Given** Transactions are linked to the same Obligation
+**When** Contributors are grouped
+**Then** those Transactions form one Contributor
+**And** the linked Obligation is visible as user-provided evidence.
+
+**Given** eligible Transactions are not linked to an Obligation
+**When** Contributors are grouped
+**Then** they are grouped by Category
+**And** Transactions without a Category form an `Uncategorized` Contributor.
+
+**Given** Context or unlinked Obligations exist
+**When** Contributor eligibility is calculated
+**Then** they may appear as explanatory context
+**And** they do not alter eligibility or rank.
+
+**Given** Contributor eligibility tests run
+**When** fixtures include duplicates, Transfers, linked Refunds, unresolved Refunds, linked Obligations, unlinked Obligations, Categories, and Uncategorized Transactions
+**Then** Contributor groups and monetary impacts are deterministic
+**And** every group remains traceable to source evidence.
+
+### Story 4.7: Rank Contributors with Disclosed Calculations
+
+As a local investigator,
+I want Contributors ranked by disclosed rules and calculations,
+So that I can understand which observable Contributors were most significant without treating the ranking as proof of cause.
+
+**Acceptance Criteria:**
+
+**Given** eligible Contributors exist
+**When** ranking is calculated
+**Then** Contributors are ranked first by total monetary impact, then by deviation, then by shortest timing proximity
+**And** the applied ranking criteria are visible in the Investigation.
+
+**Given** monetary impact is calculated
+**When** a Contributor has eligible debit Amounts and linked Refunds
+**Then** total monetary impact equals eligible debits minus linked Refund Amounts during the Investigation Period
+**And** monetary values use Account Currency rounded to two decimal places.
+
+**Given** a valid Comparable Period exists
+**When** deviation is calculated
+**Then** deviation equals Investigation Period impact minus matching Comparable Period impact
+**And** the Comparison Basis is visible for each ranked Contributor.
+
+**Given** comparison data is unavailable or invalid
+**When** ranking is calculated
+**Then** deviation is omitted from ranking
+**And** the limitation is stated clearly.
+
+**Given** timing proximity is calculated
+**When** a Contributor has eligible Transactions
+**Then** timing proximity uses elapsed local-calendar time between the Contributor's latest eligible Transaction and the first downward crossing of the Safety Threshold.
+
+**Given** multiple Contributors have equal monetary impact, deviation, and timing proximity after rounding and normalization
+**When** ranking is assigned
+**Then** those Contributors receive the same rank
+**And** rank ordering is deterministic for the remaining Contributors.
+
+**Given** ranking tests run
+**When** fixtures include comparable data, missing comparison, tied Contributors, Refunds, same-day Transactions, and threshold crossings
+**Then** ranks, calculations, Comparison Basis, and limitations match expected golden results
+**And** no ranking output claims causality or gives financial advice.
+
+### Story 4.8: Explain Findings Without Causal Overclaiming
+
+As a local investigator,
+I want finding explanations to describe observable contribution and evidence limits,
+So that I can understand the analysis without being misled into thinking the app proved causation or gave financial advice.
+
+**Acceptance Criteria:**
+
+**Given** ranked Contributors are available
+**When** finding summaries are generated
+**Then** product-generated text describes observable contribution, association, amount, timing, sequence, or deviation under disclosed rules
+**And** it does not state or imply that a Transaction, Obligation, person, mood, or Context caused a Shortfall.
+
+**Given** a finding uses imported facts, user-provided information, calculations, and derived results
+**When** the explanation is displayed
+**Then** each evidence type is distinguishable through provenance labels or adjacent explanation
+**And** limitations are visible near the affected finding.
+
+**Given** comparison data is unavailable, evidence is incomplete, or a Transfer/Refund relationship is unresolved
+**When** explanations are generated
+**Then** the limitation is stated in plain language
+**And** the finding does not hide uncertainty in a tooltip-only interaction.
+
+**Given** no defensible Contributor exists
+**When** the Investigation workspace displays the result
+**Then** the system states that available evidence does not support a ranked explanation
+**And** it identifies the limiting evidence without inventing a reason.
+
+**Given** product copy is reviewed
+**When** benchmark Investigation fixtures are rendered
+**Then** prohibited patterns such as "caused your Shortfall," "you overspent because," or prescriptive advice are absent
+**And** approved patterns such as "contributed to," "was associated with," and "based on the available records" are used appropriately.
+
+**Given** explanation-language tests run
+**When** ranked, insufficient-evidence, no-defensible-Contributor, missing-comparison, and unresolved-evidence fixtures are checked
+**Then** zero unsupported causal statements or financial advice appear
+**And** explanations remain traceable to evidence and calculation outputs.
+
+### Story 4.9: Inspect Contributor Evidence
+
+As a local investigator,
+I want to open a Contributor and inspect the evidence behind its rank,
+So that I can verify the finding against source Transactions, calculations, comparison data, timing, and limitations.
+
+**Acceptance Criteria:**
+
+**Given** ranked Contributors are displayed
+**When** I select a Contributor
+**Then** the Evidence Inspector opens or updates without losing the Investigation context
+**And** I can return to the ranked Contributor list with the prior selection preserved.
+
+**Given** a Contributor is open in the Evidence Inspector
+**When** I review its evidence
+**Then** I can see source Transactions, linked Obligations, monetary impact, Comparable Period values when available, timing relative to threshold crossing, ranking rationale, and limitations
+**And** each evidence item has appropriate provenance labels.
+
+**Given** I expand the calculation section
+**When** calculation details are shown
+**Then** the displayed calculation matches the ranking output and Comparison Basis
+**And** monetary values use Account Currency rounded to two decimal places.
+
+**Given** I select a source Transaction or evidence item
+**When** synchronized evidence regions are visible
+**Then** the relevant chart point, Transaction, Contributor, and evidence detail remain synchronized through stable IDs
+**And** selection alone does not unexpectedly move keyboard focus.
+
+**Given** graph or related evidence is available
+**When** it is shown
+**Then** it appears only when it clarifies the finding
+**And** it is accompanied by a plain-language explanation so the user is never required to interpret a dense graph.
+
+**Given** I use keyboard or assistive technology
+**When** I navigate Contributor rows and the Evidence Inspector
+**Then** Contributor rows support keyboard selection and explicit `Open evidence` behavior
+**And** focus movement follows the documented interaction pattern.
+
+**Given** evidence inspection tests run
+**When** Contributors with source Transactions, linked Obligations, comparison values, limitations, related evidence, and synchronized selections are inspected
+**Then** every ranked Contributor links to source evidence, calculation, Comparison Basis, and ranking rationale
+**And** no evidence view implies causality or financial advice.
