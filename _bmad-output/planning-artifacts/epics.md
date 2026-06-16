@@ -408,3 +408,288 @@ So that I can leave and return without losing the thread of what I was inspectin
 **And** the tests verify no personal data is required for the Sample Data path.
 
 <!-- End story repeat -->
+
+## Epic 2: Account Data Onboarding and Readiness
+
+Denzo can create Accounts, enter or import Transactions, prevent duplicates, reconcile balances, and reach a clear "ready to investigate" state.
+
+### Story 2.1: Create and Manage Local Accounts
+
+As a local investigator,
+I want to create and manage Accounts with one Currency each,
+So that my imported or manually entered financial records stay organized and investigation-ready.
+
+**Acceptance Criteria:**
+
+**Given** I open `Accounts & Data`
+**When** I create a new Account with a name and Currency
+**Then** the Account is saved locally
+**And** the Account clearly displays its Currency and dataset ownership.
+
+**Given** an Account already exists
+**When** I view the Accounts list
+**Then** I can see the Account name, Currency, source type, and current readiness summary
+**And** Sample Data Accounts remain visually distinguishable from personal Accounts.
+
+**Given** I rename a personal Account
+**When** I save a valid new name
+**Then** the Account list and related readiness surfaces update to show the new name
+**And** the Account Currency remains unchanged.
+
+**Given** I attempt to create or rename an Account with invalid values
+**When** validation runs
+**Then** the affected fields show specific, adjacent error messages
+**And** no partial or invalid Account is saved.
+
+**Given** I choose to delete a personal Account
+**When** the destructive confirmation appears
+**Then** it names the affected Account and explains that related Transactions, Obligations, Context, and derived findings will be removed
+**And** deletion requires explicit confirmation and restores focus after completion or cancellation.
+
+**Given** validation tests run
+**When** Account create, view, rename, and delete paths are tested
+**Then** personal and Sample Data Accounts remain separated
+**And** Account records persist across page refresh and local app restart.
+
+### Story 2.2: Enter Transactions Manually
+
+As a local investigator,
+I want to manually enter Transactions for an Account,
+So that I can build investigation evidence even when I do not import a CSV.
+
+**Acceptance Criteria:**
+
+**Given** I have a personal Account
+**When** I open the manual Transaction form
+**Then** I can enter Transaction Date, Amount, Description, and Account
+**And** I can optionally enter Category, Transaction Type, Merchant, and running Account Balance.
+
+**Given** I submit a valid Transaction
+**When** the Transaction is saved
+**Then** it is associated with the selected Account and Currency
+**And** the Account readiness summary updates to reflect the new evidence.
+
+**Given** I submit missing or invalid required fields
+**When** validation runs
+**Then** each affected field shows a specific adjacent error message
+**And** no partial Transaction is saved.
+
+**Given** I enter a Transaction Date without a time
+**When** the Transaction is saved
+**Then** the date is interpreted as a local calendar date
+**And** downstream display uses unambiguous date text.
+
+**Given** I enter an Amount
+**When** the Transaction is saved
+**Then** the value is stored using integer minor units for the Account Currency
+**And** displayed monetary values round to two decimal places.
+
+**Given** I use only the keyboard
+**When** I complete and submit the Transaction form
+**Then** all controls are reachable in visible reading order
+**And** focus moves to a confirmation or the saved Transaction summary without being lost.
+
+**Given** validation tests run
+**When** manual Transaction creation is tested
+**Then** valid records persist locally across refresh and app restart
+**And** invalid records do not affect Account readiness.
+
+### Story 2.3: Preview and Map CSV Data
+
+As a local investigator,
+I want to preview a local CSV and map its columns before import,
+So that I can confirm how my financial records will be interpreted before anything is saved.
+
+**Acceptance Criteria:**
+
+**Given** I have a personal Account
+**When** I choose a local CSV file for import
+**Then** the app shows a preview of source rows and interpreted values
+**And** the file remains in the local environment without upload to third-party services.
+
+**Given** the CSV preview is displayed
+**When** I map columns
+**Then** I can assign required mappings for Transaction Date, Amount, Description, and Account
+**And** I can assign optional mappings for running Account Balance, Category, Transaction Type, Merchant, and Transaction ID.
+
+**Given** the CSV contains signed Amounts or separate debit and credit columns
+**When** I configure amount mapping
+**Then** the preview shows interpreted debit/credit values before import
+**And** invalid or conflicting mappings are explained next to the affected controls.
+
+**Given** the CSV contains supported date formats
+**When** dates are interpreted
+**Then** ISO `YYYY-MM-DD`, `MM/DD/YYYY`, and `DD/MM/YYYY` formats are supported
+**And** ambiguous day/month data requires explicit user selection before import can continue.
+
+**Given** mapping validation fails
+**When** I correct a mapping
+**Then** the selected file, preview, and previous mappings are preserved
+**And** the preview refreshes without importing partial data.
+
+**Given** I use only the keyboard
+**When** I move through the CSV Mapper
+**Then** required mapping controls, optional mapping controls, preview table, and validation messages are reachable and understandable
+**And** the preview table has associated headers or an equivalent accessible summary.
+
+**Given** CSV mapping tests run
+**When** representative fixture files are previewed
+**Then** valid rows show expected interpreted values
+**And** ambiguous or invalid rows show specific pre-import feedback.
+
+### Story 2.4: Import Valid Rows and Report Rejections
+
+As a local investigator,
+I want valid CSV rows imported and malformed rows rejected with clear reasons,
+So that I can improve my data without guessing what the importer accepted.
+
+**Acceptance Criteria:**
+
+**Given** I have completed CSV preview and mapping
+**When** I confirm import
+**Then** valid rows are saved as Transactions for the selected Account
+**And** malformed rows are not saved.
+
+**Given** the import completes with mixed results
+**When** the Import Result is displayed
+**Then** accepted, duplicate, and rejected row counts are shown separately
+**And** each rejected row includes the source row number and a specific reason.
+
+**Given** all rows are rejected
+**When** the import result is displayed
+**Then** no Transactions are saved
+**And** the preserved preview lists every rejection reason and offers a correction path.
+
+**Given** some rows are accepted and others rejected
+**When** I correct mappings or source data and retry
+**Then** previously accepted Transactions are not duplicated
+**And** the retry result shows fresh accepted, duplicate, and rejected counts.
+
+**Given** imported Transactions are displayed
+**When** I inspect a row from the import result
+**Then** imported values are labeled as imported facts with source row provenance
+**And** Sample Data and personal data remain separated.
+
+**Given** import fixture tests run
+**When** representative valid and malformed CSV fixtures are imported
+**Then** at least 95% of valid fixture rows are interpreted correctly
+**And** every rejected fixture row receives a specific reason.
+
+### Story 2.5: Prevent Duplicate Transactions
+
+As a local investigator,
+I want repeat imports to avoid creating duplicate Transactions,
+So that my Account evidence stays trustworthy even if I retry or re-import a statement.
+
+**Acceptance Criteria:**
+
+**Given** an imported row includes a Transaction ID
+**When** I import or re-import that row for the same Account
+**Then** Transaction ID is used as the duplicate identity
+**And** the duplicate row is counted as duplicate instead of creating a new Transaction.
+
+**Given** an imported row does not include a Transaction ID
+**When** I import or re-import that row for the same Account
+**Then** duplicate identity uses Account, Transaction Date, Amount, and normalized Description
+**And** matching rows are counted as duplicates instead of creating new Transactions.
+
+**Given** I re-import the same statement after renaming or reordering the file
+**When** import completes
+**Then** zero new Transactions are created for rows that already exist
+**And** the Import Result shows duplicate counts clearly.
+
+**Given** two Transactions are similar but not duplicates
+**When** they differ by duplicate identity fields
+**Then** the importer keeps them distinct
+**And** the Import Result does not incorrectly collapse valid evidence.
+
+**Given** duplicate prevention runs
+**When** matching is applied
+**Then** source provenance for the original accepted Transaction remains intact
+**And** the duplicate attempt is recorded only in import result context, not as a new Transaction.
+
+**Given** duplicate fixture tests run
+**When** same, renamed, reordered, with-ID, and without-ID statement fixtures are imported repeatedly
+**Then** re-importing the same evidence creates zero new Transactions
+**And** expected non-duplicate rows still import successfully.
+
+### Story 2.6: Establish Balance Evidence and Reconciliation
+
+As a local investigator,
+I want the app to establish and reconcile Account Balance evidence,
+So that investigations only proceed when the balance record is understandable and trustworthy.
+
+**Acceptance Criteria:**
+
+**Given** imported Transactions include running Account Balance values
+**When** Account Balance is established
+**Then** imported running balances are preferred as the balance evidence source
+**And** the readiness surface labels the balance source as imported evidence.
+
+**Given** imported Transactions do not include running Account Balance values
+**When** I provide an Opening Balance
+**Then** the app reconstructs Account Balance from the Opening Balance and ordered Transactions
+**And** the readiness surface labels the balance source as reconstructed from user-provided evidence.
+
+**Given** running balances and reconstructed balances differ
+**When** reconciliation runs
+**Then** the app shows the reconciliation difference before Investigation
+**And** the difference is explained without blame, advice, or causal conclusions.
+
+**Given** a reconciliation difference exists
+**When** I attempt to proceed toward Contributor ranking
+**Then** the app requires correction or explicit acceptance of the difference
+**And** unresolved reconciliation blocks ranking while preserving the current data state.
+
+**Given** Transactions occur on the same day
+**When** Account Balance is reconstructed
+**Then** same-day ordering uses source order and then stable import order
+**And** the ordering is deterministic across repeated calculations.
+
+**Given** reconciliation tests run
+**When** fixture Accounts with imported balances, Opening Balance reconstruction, same-day Transactions, and reconciliation differences are processed
+**Then** expected balances and differences match to two decimal places for the Account Currency
+**And** results are deterministic for identical inputs.
+
+### Story 2.7: Show Account Readiness for Investigation
+
+As a local investigator,
+I want a clear Account readiness view,
+So that I know whether my Account has enough evidence to begin a Shortfall Investigation and what to fix if it does not.
+
+**Acceptance Criteria:**
+
+**Given** I select an Account in `Investigate` or `Accounts & Data`
+**When** the Account Readiness Panel renders
+**Then** it shows data coverage, balance evidence source, reconciliation status, and one recommended next action
+**And** the panel distinguishes imported facts, user-provided values, and calculated readiness status.
+
+**Given** the Account has no Transactions
+**When** readiness is evaluated
+**Then** the panel explains what data is required
+**And** it routes me to manual Transaction entry or CSV import without fabricating readiness.
+
+**Given** the Account is missing Opening Balance or running balance evidence
+**When** readiness is evaluated
+**Then** the panel identifies the missing evidence
+**And** it offers the next action needed before Investigation can proceed.
+
+**Given** the Account has an unresolved reconciliation difference
+**When** readiness is evaluated
+**Then** the panel shows the difference and its effect on ranking eligibility
+**And** it requires correction or explicit acceptance before Contributor ranking can proceed.
+
+**Given** the Account is ready for Shortfall selection
+**When** readiness is evaluated
+**Then** the panel shows `Ready to investigate` with the supporting evidence summary
+**And** the next action moves to Safety Threshold and Shortfall selection.
+
+**Given** I use a keyboard or screen reader
+**When** readiness status changes after import, manual entry, or reconciliation
+**Then** the updated status is announced politely
+**And** focus remains on a logical next action.
+
+**Given** readiness tests run
+**When** Accounts with no Transactions, missing balance evidence, reconciliation differences, accepted reconciliation, and ready states are evaluated
+**Then** each state produces the expected status, limitation, and next action
+**And** no state uses causal, advisory, or blame-oriented language.
