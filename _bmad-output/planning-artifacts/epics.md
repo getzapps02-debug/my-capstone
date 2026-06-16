@@ -1333,3 +1333,233 @@ So that I can verify the finding against source Transactions, calculations, comp
 **When** Contributors with source Transactions, linked Obligations, comparison values, limitations, related evidence, and synchronized selections are inspected
 **Then** every ranked Contributor links to source evidence, calculation, Comparison Basis, and ranking rationale
 **And** no evidence view implies causality or financial advice.
+
+## Epic 5: Historical Trends and Transaction Replay
+
+Denzo can inspect Account Balance and Category trends, select evidence from chart or table alternatives, and replay the Investigation Period chronologically while chart, Transactions, Contributors, and evidence remain synchronized.
+
+### Story 5.1: Show Historical Account Balance Trends
+
+As a local investigator,
+I want to view Account Balance trends over time,
+So that I can understand the selected Shortfall and Investigation Period in the context of the Account's balance history.
+
+**Acceptance Criteria:**
+
+**Given** an Account has balance evidence and a Safety Threshold
+**When** I open Shortfall selection or the Investigation workspace
+**Then** the Account Balance trend is displayed for the relevant date range
+**And** the selected Shortfall, Safety Threshold, Investigation Period, Comparable Period when available, and first downward threshold crossing are identifiable.
+
+**Given** the Account Balance chart is displayed
+**When** balance values are shown
+**Then** monetary values use Account Currency rounded to two decimal places
+**And** dates use local calendar dates without time-zone drift.
+
+**Given** the chart uses visual marks
+**When** I inspect threshold, selected period, crossing, current evidence selection, and stale state
+**Then** each meaning is represented by text, line style, marker shape, or adjacent label in addition to color
+**And** chart interpretation does not require hover, animation, or color alone.
+
+**Given** balance evidence changes through import, correction, deletion, exclusion, or threshold update
+**When** derived trend data is recomputed
+**Then** affected chart points and Investigation context refresh together
+**And** stale balance, Contributor, evidence, and Replay views cannot be treated as current.
+
+**Given** no balance evidence is available for the requested range
+**When** the trend view renders
+**Then** the system explains which balance evidence is missing
+**And** it routes me to provide an Opening Balance, import running balances, or correct reconciliation without fabricating chart values.
+
+**Given** Account Balance trend tests run
+**When** fixtures include imported running balances, reconstructed balances, reconciliation differences, threshold crossings, period changes, and evidence corrections
+**Then** trend points, crossing identification, stale-state behavior, and display values are deterministic
+**And** no trend copy implies prediction, blame, or financial advice.
+
+### Story 5.2: Show Category Amount Trends
+
+As a local investigator,
+I want to view Category Amount trends over time,
+So that I can compare spending patterns during the Investigation Period without mistaking them for proven causes.
+
+**Acceptance Criteria:**
+
+**Given** categorized Transactions exist for the Account
+**When** Category trends are calculated
+**Then** the view groups eligible Transaction Amounts by Category and local calendar date or period bucket
+**And** Transactions without a Category appear under `Uncategorized`.
+
+**Given** the Investigation Period and Comparable Period are available
+**When** Category trends are displayed
+**Then** Investigation Period values and comparable values are distinguishable
+**And** unavailable comparison data is shown as unavailable rather than as zero.
+
+**Given** Transfers, excluded Transactions, duplicate Transactions, or linked Refunds affect the analysis
+**When** Category trend values are calculated
+**Then** the same eligibility and adjustment rules used by Contributor evidence are applied or disclosed
+**And** limitations are visible near the affected trend.
+
+**Given** I select a Category trend point or row
+**When** synchronized evidence regions are visible
+**Then** related Transactions, Contributor rows, chart marks, and Evidence Inspector content update through stable IDs
+**And** selection alone does not unexpectedly move keyboard focus.
+
+**Given** Category changes, Transfer flags, Refund links, exclusions, or Transaction Amounts are corrected
+**When** trend data refreshes
+**Then** affected Category trend values, Contributors, evidence, and Replay state are updated together or marked stale until recomputed.
+
+**Given** Category trend tests run
+**When** fixtures include categorized Transactions, Uncategorized Transactions, Transfers, exclusions, duplicate rows, linked Refunds, missing comparison data, and corrections
+**Then** Category totals, comparison availability, limitations, and synchronized selections are deterministic
+**And** trend language avoids causal overclaiming and advice.
+
+### Story 5.3: Provide Chart Summaries and Table Alternatives
+
+As a local investigator using keyboard, assistive technology, or a small screen,
+I want chart information available through summaries and tables,
+So that I can inspect trends and selected evidence without relying on visual chart interaction.
+
+**Acceptance Criteria:**
+
+**Given** a balance or Category chart is displayed
+**When** I inspect the chart alternative
+**Then** an always-available text summary identifies the chart title, Account, Currency, date range, Safety Threshold, selected Shortfall, Investigation Period, Comparable Period when available, threshold crossing, selected evidence, and key values.
+
+**Given** chart data exists
+**When** I open the equivalent table
+**Then** the table includes associated headers, local dates, monetary values, threshold state where relevant, selected-evidence state, and links or actions for corresponding Transactions
+**And** numeric values align or format consistently for scanning.
+
+**Given** I select a chart point, summary item, or table row
+**When** selection changes
+**Then** chart, summary, table, Transaction list, Contributor rows, Evidence Inspector, and Replay event when available remain synchronized
+**And** one polite status announcement summarizes the selection and next action.
+
+**Given** a chart has many points or Transactions
+**When** the table alternative is rendered
+**Then** pagination or measured virtualization preserves chronological comprehension
+**And** no infinite scroll or hidden hover-only action is required.
+
+**Given** the workspace is below 1024px, at 320 CSS pixels, or at 400% zoom
+**When** chart alternatives are displayed
+**Then** no required function disappears
+**And** local horizontal scrolling is used only inside labeled two-dimensional chart or table regions.
+
+**Given** chart accessibility tests run
+**When** balance and Category chart fixtures are navigated with keyboard and assistive technology
+**Then** names, roles, states, focus indicators, table headers, announcements, and selection synchronization meet the documented WCAG 2.2 AA floor
+**And** no meaning depends on color, hover, or motion alone.
+
+### Story 5.4: Build Chronological Replay Events
+
+As a local investigator,
+I want the Investigation Period converted into ordered Replay events,
+So that I can step through the balance decline and related evidence in the same sequence every time.
+
+**Acceptance Criteria:**
+
+**Given** an Investigation Period has replayable Transactions
+**When** Replay events are generated
+**Then** events cover Transactions from the start through the end of the Investigation Period
+**And** each event includes event position, total event count, local date, signed Amount, Account Currency, resulting Account Balance, threshold state, and linked Contributor when available.
+
+**Given** multiple Transactions occur on the same local date
+**When** Replay events are ordered
+**Then** events sort by local calendar date, source order when available, stable import order, and stable Transaction ID as final tie-breaker
+**And** identical inputs produce identical Replay order.
+
+**Given** a Replay event is linked to source evidence
+**When** the event is selected
+**Then** the corresponding chart point, Transaction row, Contributor row, Evidence Inspector section, and related evidence update through stable IDs
+**And** provenance and limitations remain attached to the selected evidence.
+
+**Given** the Investigation Period contains no replayable Transactions
+**When** Replay is requested
+**Then** the system states that the period contains no replayable Transactions
+**And** it returns me to Period setup or the Investigation workspace without changing existing selections.
+
+**Given** evidence changes while Replay data exists
+**When** Transactions, balances, thresholds, periods, Contributors, or exclusions change
+**Then** affected Replay events are regenerated or marked stale
+**And** stale Replay cannot be resumed as current.
+
+**Given** Replay event tests run
+**When** fixtures include same-day Transactions, imported order, manually entered Transactions, linked Contributors, threshold crossing, no-event periods, and evidence corrections
+**Then** event order, event payloads, synchronization IDs, and stale behavior are deterministic
+**And** Replay data is generated without browser-side financial calculations.
+
+### Story 5.5: Control Transaction Replay
+
+As a local investigator,
+I want clear controls for Transaction Replay,
+So that I can play, pause, step, restart, change speed, and jump without losing Investigation context.
+
+**Acceptance Criteria:**
+
+**Given** Replay is ready
+**When** I open Transaction Replay
+**Then** controls show total events, current event position, selected period, play state, speed, previous/next availability, restart availability, and an exit action
+**And** Replay starts at event 1 without autoplay.
+
+**Given** I use Replay controls
+**When** I play, pause, move previous, move next, restart, change speed, or jump from a chart point or Transaction
+**Then** the current event, chart, Transaction list, Contributor evidence, and Evidence Inspector remain synchronized
+**And** disabled boundary controls expose disabled state and do not change selection.
+
+**Given** Replay reaches a threshold crossing or user-selected milestone
+**When** Replay advances during autoplay
+**Then** the milestone is announced politely
+**And** event-by-event narration is available only as an explicit option.
+
+**Given** Replay completes or I exit Replay
+**When** the complete Investigation view is restored
+**Then** the prior Contributor and evidence selection are preserved
+**And** focus returns to the Replay invoker or the next logical Investigation heading.
+
+**Given** Replay loading fails
+**When** the failure state is displayed
+**Then** the current Investigation context remains available
+**And** the message states what failed and offers a safe retry without losing the prior selection.
+
+**Given** Replay control tests run
+**When** keyboard, pointer, jump, speed, boundary, completion, exit, and load-failure paths are exercised
+**Then** controls expose accessible names, roles, states, focus order, announcements, and deterministic synchronization
+**And** Replay copy does not optimize watch time or imply advice.
+
+### Story 5.6: Support Reduced Motion and Responsive Replay
+
+As a local investigator with motion sensitivity or a smaller screen,
+I want Replay to remain fully usable without animation or side-by-side layout,
+So that I can understand the sequence without discomfort or lost functionality.
+
+**Acceptance Criteria:**
+
+**Given** reduced-motion preference is active
+**When** Replay advances, jumps, completes, or updates selections
+**Then** events change instantaneously without interpolation, panning, flashing, or animated auto-scroll
+**And** every balance, threshold, Contributor, and evidence change remains available in text.
+
+**Given** reduced-motion preference is inactive
+**When** Replay uses visual transitions
+**Then** animation is restrained, interruptible by pause, and never required to understand event order or evidence
+**And** Pause remains immediately reachable.
+
+**Given** the viewport is between 768 and 1023px
+**When** Replay is shown
+**Then** the chart remains above responsive region tabs for Contributors and Evidence
+**And** changing tabs does not lose the active Replay event or Contributor.
+
+**Given** the viewport is below 768px, 320 CSS pixels wide, or at 400% zoom
+**When** Replay is shown
+**Then** all controls and event details remain reachable in DOM order
+**And** advisory copy may state that a wider window can make comparison easier without hiding any required function.
+
+**Given** Replay is paused by stale data, failure, or user action
+**When** the paused state is announced
+**Then** the announcement includes `Paused at event n of total` or the specific blocking reason
+**And** duplicate synchronized announcements are suppressed.
+
+**Given** reduced-motion and responsive Replay tests run
+**When** fixtures are checked across desktop, tablet, mobile, reduced-motion, stale, and failure states
+**Then** Replay remains keyboard operable, accessible, synchronized, and nonblank
+**And** no required function depends on motion, hover, or wide-screen layout.
