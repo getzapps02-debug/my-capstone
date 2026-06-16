@@ -201,13 +201,9 @@ Denzo can understand the sequence of events through accessible trends and synchr
 
 **FRs covered:** FR22, FR23, FR24
 
-<!-- Repeat for each epic in epics_list (N = 1, 2, 3...) -->
-
 ## Epic 1: Local App Foundation with First Visible Investigation Slice
 
 Denzo can start the local app, see the product shell, load/reset Sample Data, and begin from a trustworthy local-only foundation.
-
-<!-- Repeat for each story (M = 1, 2, 3...) within epic N -->
 
 ### Story 1.1: Initialize Local Web Workspace
 
@@ -406,8 +402,6 @@ So that I can leave and return without losing the thread of what I was inspectin
 **When** page refresh, browser restart simulation, and local app restart paths run
 **Then** the sample investigation entry state is restored deterministically
 **And** the tests verify no personal data is required for the Sample Data path.
-
-<!-- End story repeat -->
 
 ## Epic 2: Account Data Onboarding and Readiness
 
@@ -828,7 +822,7 @@ So that Contributor analysis can exclude movement between accounts and reduce im
 **Given** I inspect a Transaction that represents movement between known Accounts
 **When** I mark it as a Transfer
 **Then** the Transaction is labeled as a Transfer
-**And** future spending and Contributor calculations exclude it from eligible spending.
+**And** the Transaction is stored with evidence status that makes it ineligible for spending analysis.
 
 **Given** a Transfer cannot be fully matched or resolved
 **When** I inspect its evidence status
@@ -836,9 +830,9 @@ So that Contributor analysis can exclude movement between accounts and reduce im
 **And** the wording does not imply causality or advice.
 
 **Given** I inspect a refund Transaction
-**When** I link it to an affected Transaction or future Contributor group
+**When** I link it to an affected source Transaction
 **Then** the refund relationship is saved locally
-**And** future Contributor impact reduces by the linked Refund Amount.
+**And** the relationship is available for later Contributor impact calculations without requiring Contributor groups to exist in this story.
 
 **Given** a Refund link is incomplete or unresolved
 **When** the evidence is inspected
@@ -869,9 +863,9 @@ So that I can explain evidence without confusing user-provided notes with import
 **And** it is visibly labeled as user-provided evidence.
 
 **Given** an Obligation is linked to a Transaction
-**When** future Contributor eligibility or ranking uses it
-**Then** the Obligation affects ranking only through the Amount of its linked Transaction
-**And** an unlinked Obligation may appear as Context but cannot alter ranking.
+**When** I inspect the linked evidence
+**Then** the Obligation records that later Contributor analysis may use only the Amount of its linked Transaction
+**And** an unlinked Obligation is stored as Context-only evidence and cannot be treated as a ranking input.
 
 **Given** I am viewing a Transaction or Investigation
 **When** I attach Context such as event, person, place, mood, need-or-want classification, emergency, tag, or note
@@ -1453,8 +1447,8 @@ So that I can inspect trends and selected evidence without relying on visual cha
 ### Story 5.4: Build Chronological Replay Events
 
 As a local investigator,
-I want the Investigation Period converted into ordered Replay events,
-So that I can step through the balance decline and related evidence in the same sequence every time.
+I want the Investigation Period converted into ordered Replay events with a visible ready state,
+So that I can verify the sequence before stepping through the balance decline and related evidence.
 
 **Acceptance Criteria:**
 
@@ -1462,6 +1456,16 @@ So that I can step through the balance decline and related evidence in the same 
 **When** Replay events are generated
 **Then** events cover Transactions from the start through the end of the Investigation Period
 **And** each event includes event position, total event count, local date, signed Amount, Account Currency, resulting Account Balance, threshold state, and linked Contributor when available.
+
+**Given** Replay events have been generated
+**When** I view Replay readiness in the Investigation workspace
+**Then** I can see the total event count, selected period, first event date and Amount, resulting Account Balance, threshold state, and whether a linked Contributor is available
+**And** Replay remains stopped without autoplay until I explicitly start or step it.
+
+**Given** Replay readiness is displayed
+**When** I inspect the event preview
+**Then** the preview is available as text or a table with local dates, Account Currency, event position, and source Transaction links
+**And** it does not require chart animation or future Replay controls to verify the ordered event list.
 
 **Given** multiple Transactions occur on the same local date
 **When** Replay events are ordered
