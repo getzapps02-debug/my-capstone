@@ -693,3 +693,283 @@ So that I know whether my Account has enough evidence to begin a Shortfall Inves
 **When** Accounts with no Transactions, missing balance evidence, reconciliation differences, accepted reconciliation, and ready states are evaluated
 **Then** each state produces the expected status, limitation, and next action
 **And** no state uses causal, advisory, or blame-oriented language.
+
+## Epic 3: Evidence Management and Local Data Control
+
+Denzo can correct evidence, mark Transfers/Refunds, manage Obligations and Context, undo/delete evidence, export Transactions, and permanently delete local data.
+
+### Story 3.1: Inspect Transaction Provenance and Details
+
+As a local investigator,
+I want to inspect a Transaction's source and current details,
+So that I can understand which evidence is imported, corrected, user-provided, or derived before I rely on it.
+
+**Acceptance Criteria:**
+
+**Given** I open a Transaction from `Accounts & Data`, Account readiness, or an evidence surface
+**When** the Transaction Detail view renders
+**Then** it shows Transaction Date, Amount, Description, Account, Category, Transaction Type, Merchant, transfer status, and running Account Balance when available
+**And** each value is labeled by provenance where applicable.
+
+**Given** a Transaction was imported from CSV
+**When** I inspect its details
+**Then** the view shows imported fact provenance, including source import reference and source row number when available
+**And** the view does not expose raw uploaded row contents beyond the fields needed for user verification.
+
+**Given** a Transaction has user corrections
+**When** I inspect corrected fields
+**Then** the view shows original imported value and current corrected value together
+**And** the correction is clearly labeled as user-provided or user-corrected evidence.
+
+**Given** a Transaction affects Account readiness or future Investigation results
+**When** I inspect its details
+**Then** the view identifies whether the Transaction is included, excluded, duplicate, Transfer, Refund-related, or otherwise limited
+**And** the wording describes evidence status without causal claims or financial advice.
+
+**Given** I use only the keyboard or a screen reader
+**When** I open, read, and close Transaction Detail
+**Then** focus moves predictably to the detail heading and returns to the invoking control
+**And** provenance labels are programmatically associated with the related values.
+
+**Given** provenance tests run
+**When** imported, manually entered, corrected, duplicate, excluded, Transfer, and Refund-related Transactions are inspected
+**Then** each state displays the expected provenance and evidence status
+**And** no state requires external network services.
+
+### Story 3.2: Correct Transaction Evidence
+
+As a local investigator,
+I want to correct Transaction evidence,
+So that imported or entered records can be fixed and affected readiness or investigation views can update from trustworthy data.
+
+**Acceptance Criteria:**
+
+**Given** I open Transaction Detail for an editable Transaction
+**When** I edit Category, Merchant, Description, Transaction Date, Amount, Transaction Type, or transfer status
+**Then** the form validates the changed fields
+**And** unchanged imported values remain distinguishable from user corrections.
+
+**Given** I save valid Transaction corrections
+**When** the corrections are persisted
+**Then** the Transaction Detail view shows original imported values and current corrected values where they differ
+**And** the correction is labeled as user-provided evidence.
+
+**Given** a correction affects Account Balance, Account readiness, future Contributors, charts, or Replay data
+**When** the correction is saved
+**Then** affected derived views are marked stale until recomputation completes
+**And** stale findings cannot be treated as current.
+
+**Given** recomputation completes after a correction
+**When** updated derived data is available
+**Then** Account readiness and any affected evidence summaries refresh together
+**And** the app announces the update politely without implying the correction caused a Shortfall.
+
+**Given** a correction fails to persist
+**When** the failure is reported
+**Then** the previous committed Transaction state remains intact
+**And** the user receives a calm retry path without data loss.
+
+**Given** correction tests run
+**When** each editable Transaction field is corrected
+**Then** provenance, local persistence, stale-state marking, and recomputation behavior are verified
+**And** monetary and date corrections continue to use integer minor units and local calendar dates.
+
+### Story 3.3: Exclude, Delete, and Undo Imported Evidence
+
+As a local investigator,
+I want to exclude, delete, or undo imported evidence safely,
+So that I can correct my evidence set without accidentally losing or distorting local records.
+
+**Acceptance Criteria:**
+
+**Given** I open a Transaction that should not participate in an Investigation
+**When** I exclude it from an Investigation
+**Then** the Transaction remains stored in the Account
+**And** affected readiness, Contributor eligibility, charts, and Replay data are marked stale until recomputation completes.
+
+**Given** I exclude a Transaction
+**When** I inspect the Transaction later
+**Then** its excluded status is visible with provenance and scope
+**And** the wording explains exclusion as evidence handling, not financial advice or causality.
+
+**Given** I choose to delete a Transaction
+**When** the destructive confirmation appears
+**Then** it identifies the Transaction and affected derived records
+**And** deletion requires explicit confirmation before any record is removed.
+
+**Given** I undo an import
+**When** the confirmation is accepted
+**Then** all Transactions created by that import are removed transactionally
+**And** unrelated personal data, Sample Data, and later corrections outside that import remain intact.
+
+**Given** exclusion, deletion, or import undo completes
+**When** affected views refresh
+**Then** stale derived findings are invalidated and refreshed together
+**And** the user receives a clear completion or failure message.
+
+**Given** failure occurs during deletion or import undo
+**When** the operation cannot complete safely
+**Then** the previous committed data state remains intact
+**And** the user receives a retry path without partial deletion.
+
+**Given** evidence removal tests run
+**When** exclusion, deletion, import undo, failure rollback, and recomputation paths are tested
+**Then** data boundaries and derived-state invalidation behave deterministically
+**And** destructive actions are keyboard operable and restore focus afterward.
+
+### Story 3.4: Mark Transfers and Link Refunds
+
+As a local investigator,
+I want to mark Transfers and link Refunds to related evidence,
+So that Contributor analysis can exclude movement between accounts and reduce impact where money was returned.
+
+**Acceptance Criteria:**
+
+**Given** I inspect a Transaction that represents movement between known Accounts
+**When** I mark it as a Transfer
+**Then** the Transaction is labeled as a Transfer
+**And** future spending and Contributor calculations exclude it from eligible spending.
+
+**Given** a Transfer cannot be fully matched or resolved
+**When** I inspect its evidence status
+**Then** the app shows the unresolved Transfer as an evidence limitation
+**And** the wording does not imply causality or advice.
+
+**Given** I inspect a refund Transaction
+**When** I link it to an affected Transaction or future Contributor group
+**Then** the refund relationship is saved locally
+**And** future Contributor impact reduces by the linked Refund Amount.
+
+**Given** a Refund link is incomplete or unresolved
+**When** the evidence is inspected
+**Then** the unresolved Refund is shown as a limitation
+**And** the system does not silently alter ranking without a supported relationship.
+
+**Given** a Transfer or Refund relationship changes
+**When** the update is saved
+**Then** affected Account readiness, Contributor eligibility, calculations, charts, and Replay data are marked stale until recomputation completes
+**And** the user can inspect the changed relationship from Transaction Detail.
+
+**Given** Transfer and Refund tests run
+**When** matched Transfers, unmatched Transfers, linked Refunds, unresolved Refunds, and recomputation paths are tested
+**Then** eligibility and monetary impact calculations are deterministic
+**And** provenance labels distinguish imported facts from user-provided relationships.
+
+### Story 3.5: Record Obligations and Context
+
+As a local investigator,
+I want to record Obligations and Context beside my Transactions or Investigation,
+So that I can explain evidence without confusing user-provided notes with imported facts or ranking inputs.
+
+**Acceptance Criteria:**
+
+**Given** I am viewing an Account or Transaction
+**When** I create or confirm an Obligation with amount, label, due date or recurrence, and optional linked Transaction
+**Then** the Obligation is saved locally
+**And** it is visibly labeled as user-provided evidence.
+
+**Given** an Obligation is linked to a Transaction
+**When** future Contributor eligibility or ranking uses it
+**Then** the Obligation affects ranking only through the Amount of its linked Transaction
+**And** an unlinked Obligation may appear as Context but cannot alter ranking.
+
+**Given** I am viewing a Transaction or Investigation
+**When** I attach Context such as event, person, place, mood, need-or-want classification, emergency, tag, or note
+**Then** the Context is saved locally
+**And** it is visibly labeled as user-provided information.
+
+**Given** Context exists on a Transaction or Investigation
+**When** findings or evidence summaries are displayed later
+**Then** Context may support explanation
+**And** Context does not alter Contributor eligibility or ranking.
+
+**Given** Obligation or Context is missing
+**When** readiness or Investigation evidence is evaluated
+**Then** missing Context never blocks an Investigation
+**And** the app does not invent personal context or infer motivation.
+
+**Given** Obligation and Context tests run
+**When** linked Obligations, unlinked Obligations, Transaction Context, Investigation Context, and missing Context paths are evaluated
+**Then** ranking rules remain deterministic
+**And** user-provided evidence remains distinguishable from imported facts and derived findings.
+
+### Story 3.6: Export Account Transactions
+
+As a local investigator,
+I want to export Transactions for one Account,
+So that I can keep or inspect my local records outside the application without exposing unrelated data.
+
+**Acceptance Criteria:**
+
+**Given** I open `Settings & Privacy` or `Accounts & Data` for a personal Account
+**When** I choose to export Transactions
+**Then** the app identifies the Account, Currency, and included record count before export
+**And** unrelated Accounts are not included.
+
+**Given** exported Transactions include imported and corrected values
+**When** the export file is generated
+**Then** imported values and user corrections are distinguishable
+**And** source provenance fields needed for verification are included without exposing unrelated import contents.
+
+**Given** an Account has Transfers, Refund links, Obligations, Context, exclusions, or deleted records
+**When** Transactions are exported
+**Then** the export represents current Transaction evidence and relevant flags or relationships consistently
+**And** it does not claim that derived findings are proven causes.
+
+**Given** export succeeds
+**When** the file is ready
+**Then** the app reports completion with the Account name and exported record count
+**And** focus remains in or returns to a logical location.
+
+**Given** export fails
+**When** the failure is reported
+**Then** current local data remains unchanged
+**And** the app provides a retry path without implying data loss.
+
+**Given** export tests run
+**When** Accounts with imported values, corrected values, multiple Accounts, and relationship flags are exported
+**Then** exports include only the selected Account's Transactions
+**And** exported values match current local records deterministically.
+
+### Story 3.7: Permanently Delete Local Account Data
+
+As a privacy-conscious local investigator,
+I want to permanently delete an Account or clear all local data,
+So that I can control what financial records remain in my local environment.
+
+**Acceptance Criteria:**
+
+**Given** I open `Settings & Privacy` or an Account data-control surface
+**When** I choose to delete one Account
+**Then** the destructive confirmation names the Account and affected record types
+**And** it explains that Transactions, Obligations, Context, and derived findings for that Account will be removed.
+
+**Given** I choose to clear all local data
+**When** the destructive confirmation appears
+**Then** it identifies the scope as all local Accounts, Transactions, Obligations, Context, imports, and derived findings
+**And** confirmation requires an explicit user action such as checking a scope confirmation or typing a required phrase.
+
+**Given** deletion is confirmed
+**When** the operation completes
+**Then** the selected Account or all local records are removed transactionally
+**And** the app reports completion without implying the action is recoverable.
+
+**Given** deletion affects Sample Data and personal data differently
+**When** I delete a personal Account or reset Sample Data
+**Then** the operation respects dataset boundaries
+**And** Sample Data reset never deletes personal data unless the user chose clear-all local data.
+
+**Given** deletion fails
+**When** the failure is reported
+**Then** the previous committed data state remains intact
+**And** the app identifies the failed operation and offers a safe retry.
+
+**Given** I use keyboard or assistive technology
+**When** I open and complete or cancel destructive confirmation
+**Then** focus is trapped inside the dialog while open
+**And** focus returns to the invoking control or next logical heading after completion.
+
+**Given** local data deletion tests run
+**When** single Account deletion, Sample Data reset, clear-all, cancellation, and failure rollback are tested
+**Then** local records and derived findings are removed only within the confirmed scope
+**And** no deletion operation requires external services.
