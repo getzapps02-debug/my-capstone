@@ -1,0 +1,92 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.investigation_entries": {
+      "name": "investigation_entries",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "dataset_owner": {
+          "name": "dataset_owner",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "investigation_entries_dataset_owner_idx": {
+          "name": "investigation_entries_dataset_owner_idx",
+          "columns": [
+            {
+              "expression": "dataset_owner",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "investigation_entries_title_not_blank": {
+          "name": "investigation_entries_title_not_blank",
+          "value": "length(trim(\"title\")) > 0"
+        },
+        "investigation_entries_status_valid": {
+          "name": "investigation_entries_status_valid",
+          "value": "\"status\" IN ('draft', 'active')"
+        },
+        "investigation_entries_dataset_owner_valid": {
+          "name": "investigation_entries_dataset_owner_valid",
+          "value": "\"dataset_owner\" IN ('sample', 'personal')"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

@@ -1,0 +1,89 @@
+# generated: 2026-06-16T16:51:33+08:00
+# last_updated: 2026-06-17T15:02:36+08:00
+# project: my-capstone
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: C:/Web/my-capstone/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog -> in-progress: Automatically when first story is created (via create-story)
+#   - in-progress -> done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-06-16T16:51:33+08:00
+last_updated: 2026-06-17T15:02:36+08:00
+project: my-capstone
+project_key: NOKEY
+tracking_system: file-system
+story_location: C:/Web/my-capstone/_bmad-output/implementation-artifacts
+
+development_status:
+  epic-1: in-progress
+  1-1-initialize-local-web-workspace: done
+  1-2-establish-api-and-shared-contract-path: done
+  1-3-add-local-persistence-foundation: review
+  1-4-enforce-local-only-runtime-boundary: backlog
+  1-5-load-and-reset-sample-data: backlog
+  1-6-resume-first-visible-investigation-state: backlog
+  epic-1-retrospective: optional
+  epic-2: backlog
+  2-1-create-and-manage-local-accounts: backlog
+  2-2-enter-transactions-manually: backlog
+  2-3-preview-and-map-csv-data: backlog
+  2-4-import-valid-rows-and-report-rejections: backlog
+  2-5-prevent-duplicate-transactions: backlog
+  2-6-establish-balance-evidence-and-reconciliation: backlog
+  2-7-show-account-readiness-for-investigation: backlog
+  epic-2-retrospective: optional
+  epic-3: backlog
+  3-1-inspect-transaction-provenance-and-details: backlog
+  3-2-correct-transaction-evidence: backlog
+  3-3-exclude-delete-and-undo-imported-evidence: backlog
+  3-4-mark-transfers-and-link-refunds: backlog
+  3-5-record-obligations-and-context: backlog
+  3-6-export-account-transactions: backlog
+  3-7-permanently-delete-local-account-data: backlog
+  epic-3-retrospective: optional
+  epic-4: backlog
+  4-1-define-safety-threshold: backlog
+  4-2-identify-and-select-shortfalls: backlog
+  4-3-propose-and-adjust-investigation-period: backlog
+  4-4-select-comparable-period: backlog
+  4-5-enforce-minimum-evidence-before-ranking: backlog
+  4-6-determine-eligible-contributors: backlog
+  4-7-rank-contributors-with-disclosed-calculations: backlog
+  4-8-explain-findings-without-causal-overclaiming: backlog
+  4-9-inspect-contributor-evidence: backlog
+  epic-4-retrospective: optional
+  epic-5: backlog
+  5-1-show-historical-account-balance-trends: backlog
+  5-2-show-category-amount-trends: backlog
+  5-3-provide-chart-summaries-and-table-alternatives: backlog
+  5-4-build-chronological-replay-events: backlog
+  5-5-control-transaction-replay: backlog
+  5-6-support-reduced-motion-and-responsive-replay: backlog
+  epic-5-retrospective: optional

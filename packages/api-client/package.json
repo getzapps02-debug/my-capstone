@@ -1,0 +1,42 @@
+{
+  "name": "@workspace/api-client",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint",
+    "format": "prettier --write \"**/*.{ts}\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@workspace/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10",
+    "@types/node": "^24",
+    "eslint": "^10",
+    "globals": "^17",
+    "typescript": "~6",
+    "typescript-eslint": "^8",
+    "vitest": "^4.1.0"
+  },
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./health-client": {
+      "development": "./src/health-client.ts",
+      "types": "./dist/health-client.d.ts",
+      "import": "./dist/health-client.js"
+    },
+    "./investigation-client": {
+      "development": "./src/investigation-client.ts",
+      "types": "./dist/investigation-client.d.ts",
+      "import": "./dist/investigation-client.js"
+    }
+  }
+}

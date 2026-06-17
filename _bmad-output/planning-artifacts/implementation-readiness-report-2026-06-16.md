@@ -37,7 +37,7 @@ inputDocuments:
 ### Architecture Files
 
 **Whole Documents:**
-- `_bmad-output/planning-artifacts/architecture.md` (38,176 bytes; modified June 15, 2026 9:55 PM)
+- `_bmad-output/planning-artifacts/architecture.md`
 
 **Folder Documents:**
 - None
@@ -45,7 +45,7 @@ inputDocuments:
 ### Epics & Stories Files
 
 **Whole Documents:**
-- `_bmad-output/planning-artifacts/epics.md` (88,036 bytes; modified June 16, 2026 3:26 PM)
+- `_bmad-output/planning-artifacts/epics.md`
 
 **Folder Documents:**
 - None
@@ -58,13 +58,12 @@ inputDocuments:
 **Folder Documents:**
 - `_bmad-output/planning-artifacts/ux-designs/ux-my-capstone-2026-06-15/`
 - Primary files: `DESIGN.md`, `EXPERIENCE.md`
-- Supporting files: accessibility review, rubric, validation report, mockups
+- Supporting files: accessibility review, validation report, mockups
 
 ### Discovery Issues
 
 - No duplicate whole-vs-folder document conflicts found.
 - No required document type is missing.
-- PRD and UX are folder-based rather than single top-level documents; these are selected for assessment.
 
 ## PRD Analysis
 
@@ -79,7 +78,7 @@ FR6: The system prevents repeat import of the same Transaction using Transaction
 FR7: The user can establish an Account Balance from imported running balances or an Opening Balance plus ordered Transactions, and must resolve or explicitly accept reconciliation differences before ranking Contributors.
 FR8: The user can edit Category, Merchant, Description, Transaction Date, Amount, Transaction Type, and transfer status, with corrections recomputing affected derived views.
 FR9: The user can exclude a Transaction from an Investigation, delete a Transaction, or undo an entire import, with confirmations for destructive actions.
-FR10: The user can mark Transfers and relate Refunds to affected Transactions or Contributors; Transfers are excluded and Refunds reduce related Contributor impact.
+FR10: The user can mark Transfers and relate Refunds to affected Transactions; Transfers are excluded and Refunds reduce related Contributor impact.
 FR11: The user can create or confirm an Obligation and optionally link it to a Transaction; linked Obligations may affect ranking through their linked Transaction amount only.
 FR12: The user can attach Context to a Transaction or Investigation; Context supports explanation but does not alter Contributor ranking.
 FR13: The user can set and update a Safety Threshold for an Account, refreshing qualifying Shortfalls and affected Investigations.
@@ -130,7 +129,7 @@ Total NFRs: 14
 
 ### PRD Completeness Assessment
 
-The PRD is complete enough for implementation-readiness validation. It has contiguous FR1-FR27 and NFR1-NFR14 identifiers, explicit guardrails, success metrics, failure states, and no unresolved open decisions in the PRD decision log. The strongest downstream validation focus should be traceability: confirming that Epics and Stories preserve the PRD's deterministic calculation rules, local-only boundary, accessibility floor, stale-state behavior, and non-causal language constraints.
+The PRD is complete enough for implementation-readiness validation. It has contiguous FR1-FR27 and NFR1-NFR14 identifiers, explicit guardrails, success metrics, failure states, and no unresolved open decisions in the PRD decision log. Downstream validation should continue to focus on traceability: deterministic calculation rules, local-only boundaries, accessibility, stale-state behavior, and non-causal language constraints.
 
 ## Epic Coverage Validation
 
@@ -198,11 +197,11 @@ Supporting UX files:
 ### UX to PRD Alignment
 
 - The UX information architecture maps to PRD UJ-1 and FR1-FR27.
-- The UX Requirement Coverage table explicitly maps all FR groups to flows, components, and state patterns.
-- UX flow 1 matches the PRD's primary Guided Investigation journey: readiness, threshold, Shortfall, periods, ranked Contributors, evidence inspection, Replay, and return to Investigation context.
-- UX flow 2 covers CSV import, mapping, rejected rows, and reconciliation requirements from FR4-FR7.
+- The UX Requirement Coverage table maps all FR groups to flows, components, and state patterns.
+- UX flow 1 matches the PRD's Guided Investigation journey: readiness, threshold, Shortfall, periods, ranked Contributors, evidence inspection, Replay, and return to Investigation context.
+- UX flow 2 covers CSV import, mapping, rejected rows, and reconciliation from FR4-FR7.
 - UX flow 3 covers evidence correction, stale findings, recomputation, and traceability from FR8-FR12 and NFR9.
-- UX flow 4 covers export, local privacy, destructive confirmation, and deletion requirements from FR25-FR27.
+- UX flow 4 covers export, local privacy, destructive confirmation, and deletion from FR25-FR27.
 - UX flow 5 covers no-account/manual-start behavior and Account readiness.
 - UX voice and tone reinforce PRD non-causal and non-advisory guardrails.
 - UX accessibility floor aligns with PRD NFR4-NFR7.
@@ -229,7 +228,7 @@ No blocking UX alignment issues found.
 
 ### Overall Quality Summary
 
-The epics are user-value oriented and traceable to the PRD. Epic sequencing is broadly coherent:
+The epics are user-value oriented and traceable to the PRD. Epic sequencing is coherent:
 
 - Epic 1 establishes a visible local app slice, local-only boundary, Sample Data, and persistence.
 - Epic 2 builds Account onboarding and readiness on Epic 1.
@@ -237,7 +236,7 @@ The epics are user-value oriented and traceable to the PRD. Epic sequencing is b
 - Epic 4 builds Shortfall investigation and Contributor evidence on prior evidence and readiness capabilities.
 - Epic 5 builds historical trends and Replay after Investigation and evidence surfaces exist.
 
-No epic is a pure technical milestone. Epic 1 includes technical foundation work, but its stories pair that work with user-verifiable local app, service health, persistence, Sample Data, and resume behavior.
+No epic is a pure technical milestone. Epic 1 contains platform foundation work, but its stories pair that work with user-verifiable outcomes: local app startup, visible shell, health/readiness feedback, persistence, Sample Data, and resume behavior.
 
 ### Critical Violations
 
@@ -245,112 +244,87 @@ None found.
 
 ### Major Issues
 
-1. Story 3.4 contains a forward dependency risk.
+None found.
 
-Evidence:
-- In `_bmad-output/planning-artifacts/epics.md`, Story 3.4 says a Refund can be linked to an affected Transaction or "future Contributor group" and says "future Contributor impact reduces by the linked Refund Amount."
+The previously identified issues have been resolved:
 
-Impact:
-- Contributor groups are not implemented until Epic 4. If Story 3.4 requires linking directly to Contributor groups, Epic 3 would depend on Epic 4, violating forward-dependency discipline.
-
-Recommendation:
-- Reword Story 3.4 so Epic 3 saves Refund relationships to source Transactions and/or durable relationship metadata only. Defer Contributor-group application to Epic 4.6 and 4.7, where Contributor grouping and impact calculation are implemented.
-
-2. Story 3.5 contains a forward dependency risk.
-
-Evidence:
-- In `_bmad-output/planning-artifacts/epics.md`, Story 3.5 says "When future Contributor eligibility or ranking uses it" for Obligations.
-
-Impact:
-- The story could be interpreted as requiring Contributor eligibility/ranking behavior before Epic 4 exists.
-
-Recommendation:
-- Keep Epic 3 scoped to recording Obligations, linking them to Transactions, and exposing provenance/rules. Move ranking-use verification into Epic 4.6 and 4.7, or reword the acceptance criterion to state that the stored relationship is available for later Contributor analysis without requiring ranking to exist in Story 3.5.
-
-3. Story 5.4 may be too technical as written.
-
-Evidence:
-- Story 5.4 is titled "Build Chronological Replay Events" and focuses on event generation. The main user-visible Replay controls arrive in Story 5.5.
-
-Impact:
-- The story is valuable, but it risks becoming an invisible backend/data milestone unless it includes a minimal user-verifiable Replay readiness or event-list surface.
-
-Recommendation:
-- Add a visible acceptance path to Story 5.4: for example, when Replay events are generated, the Investigation workspace shows a Replay-ready state with event count, first event details, no-autoplay state, and a text/table event preview. Alternatively, merge 5.4 into 5.5 if implementation cannot produce a useful visible slice independently.
+- Story 3.4 now links Refunds to affected source Transactions and explicitly avoids requiring Epic 4 analysis in the story.
+- Story 3.5 now records Obligations and Context without requiring Contributor eligibility or ranking behavior before Epic 4.
+- Story 5.4 now includes a visible Replay-ready state and event preview so it is independently user-verifiable before Replay controls are implemented.
+- Leftover template comments are no longer present in `epics.md`.
 
 ### Minor Concerns
 
-1. Template comments remain in the epics document.
+1. Some early foundation stories still use explanatory "future" language.
 
 Evidence:
-- The epics file still includes comments such as `<!-- Repeat for each epic... -->`, `<!-- Repeat for each story... -->`, and `<!-- End story repeat -->`.
+- Story 1.1 refers to "future investigation work."
+- Story 1.2 refers to "future investigation features" and "future endpoints."
+- Story 1.3 refers to "future sample and personal investigation work."
 
 Impact:
-- This does not block implementation, but it creates document noise and may confuse story generation.
+- These references are acceptable because each story has a concrete visible acceptance path and does not require later epics to be implemented.
 
 Recommendation:
-- Remove leftover template comments before sprint planning.
+- During story creation, keep this wording explanatory only. Generated implementation stories should stay scoped to their own acceptance criteria.
 
-2. Some early foundation stories use "future" language.
+2. Story 3.2 mentions "future Contributors" in stale-state handling.
 
 Evidence:
-- Story 1.1 and 1.2 refer to future investigation work or future endpoints.
+- Story 3.2 says a correction affects "future Contributors, charts, or Replay data."
 
 Impact:
-- This is acceptable in context because the stories still have visible acceptance paths, but future-oriented wording should remain explanatory only and must not become a dependency on unbuilt later stories.
+- This is acceptable because the story is about invalidating downstream derived state, not requiring Contributor implementation during Epic 3.
 
 Recommendation:
-- No required change unless story creation later interprets these as dependencies. Keep each generated implementation story scoped to its own visible acceptance path.
+- During implementation, persist invalidation metadata or state boundaries as needed without implementing Epic 4 Contributor behavior early.
 
 ### Best Practices Checklist
 
 | Area | Result | Notes |
 | ---- | ------ | ----- |
 | Epic user value | Pass | All five epics describe user outcomes. |
-| Epic independence | Pass with issues | Sequence is coherent; Epic 3 wording should avoid Contributor-group/ranking dependency. |
-| Story user value | Pass with issue | Story 5.4 needs a stronger visible acceptance path. |
-| Acceptance criteria format | Pass | Stories consistently use Given/When/Then. |
-| Error and edge cases | Pass | Error, empty, stale, accessibility, and failure paths are well represented. |
+| Epic independence | Pass | No Epic N requires Epic N+1 to function. |
+| Story user value | Pass | Each story has a user-verifiable outcome or acceptance path. |
+| Acceptance criteria format | Pass | Stories consistently use Given/When/Then criteria with error and test paths. |
+| Error and edge cases | Pass | Error, empty, stale, accessibility, and failure paths are represented. |
 | Starter template handling | Pass | Epic 1 Story 1 includes the required starter initialization path. |
-| Database/entity timing | Pass with caution | Epic 1 creates only minimal persistence; later story-specific data should be added when first needed. |
+| Database/entity timing | Pass | Foundation persistence is scoped; story-specific data should continue to be added when first needed. |
 | Traceability | Pass | FR coverage is explicit and complete. |
 
 ### Remediation Required Before Sprint Planning
 
-- Revise Story 3.4 to remove direct dependency on future Contributor groups.
-- Revise Story 3.5 to avoid requiring Contributor eligibility/ranking before Epic 4.
-- Add a visible user-verifiable acceptance path to Story 5.4 or merge it with Story 5.5.
-- Remove leftover template comments from `epics.md`.
+None.
 
 ## Summary and Recommendations
 
 ### Overall Readiness Status
 
-NEEDS WORK
+READY
 
-The planning set is strong and close to implementation-ready. PRD coverage is complete, UX and Architecture are aligned, and there are no critical missing documents or uncovered functional requirements. However, sprint planning should wait until the story-quality issues in `epics.md` are corrected, because they can create forward dependencies or invisible implementation slices.
+The planning set is ready to move into Phase 4 implementation planning. PRD coverage is complete, UX and architecture are aligned, and the epics now pass quality review without critical or major issues.
 
 ### Critical Issues Requiring Immediate Action
 
-No critical issues found.
+None.
 
 ### Issues Requiring Attention
 
-1. Story 3.4 forward dependency risk: remove direct dependency on future Contributor groups and keep Epic 3 scoped to source Transaction/Refund relationships.
-2. Story 3.5 forward dependency risk: avoid requiring Contributor eligibility or ranking behavior before Epic 4.
-3. Story 5.4 visible-slice risk: add a user-verifiable Replay-ready/event-list path or merge the story with Replay controls.
-4. Document cleanup: remove leftover template comments from `epics.md`.
+No blocking issues remain. Two non-blocking cautions should be carried into story creation and implementation:
+
+1. Treat early "future" language in foundation stories as explanatory only, not as permission to implement later epic behavior early.
+2. Preserve UX accessibility, evidence synchronization, stale-state handling, and non-causal language as acceptance requirements, not polish.
 
 ### Recommended Next Steps
 
-1. Update `epics.md` to resolve the four issues listed above.
-2. Re-run Implementation Readiness or perform a focused recheck of Epic Quality Review.
-3. After the report returns `READY`, run Sprint Planning (`bmad-sprint-planning`) to create the implementation sequence.
-4. Begin the implementation loop with Story Creation, Story Validation, Development, and Code Review.
+1. Run Sprint Planning (`bmad-sprint-planning`) to create the implementation sequence.
+2. Create the first implementation story from the sprint plan (`bmad-create-story`).
+3. Validate the story before development (`bmad-create-story` with validate action).
+4. Begin the implementation loop: Dev Story (`bmad-dev-story`), Code Review (`bmad-code-review`), then next story.
 
 ### Final Note
 
-This assessment identified 4 issues across 1 category: Epic Quality Review. The issues are fixable and localized. Address them before proceeding to implementation planning so sprint stories do not inherit avoidable dependency ambiguity.
+This assessment identified 0 blocking issues across the required readiness categories. The previous epic-quality findings have been corrected and verified. Proceed to sprint planning.
 
 Assessor: Codex via BMad Implementation Readiness workflow
 Assessment date: 2026-06-16

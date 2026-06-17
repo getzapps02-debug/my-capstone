@@ -1,0 +1,47 @@
+{
+  "name": "@workspace/contracts",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint",
+    "format": "prettier --write \"**/*.{ts}\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10",
+    "@types/node": "^24",
+    "eslint": "^10",
+    "globals": "^17",
+    "typescript": "~6",
+    "typescript-eslint": "^8",
+    "vitest": "^4.1.0"
+  },
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./errors": {
+      "development": "./src/errors/index.ts",
+      "types": "./dist/errors/index.d.ts",
+      "import": "./dist/errors/index.js"
+    },
+    "./health": {
+      "development": "./src/health/index.ts",
+      "types": "./dist/health/index.d.ts",
+      "import": "./dist/health/index.js"
+    },
+    "./investigations": {
+      "development": "./src/investigations/index.ts",
+      "types": "./dist/investigations/index.d.ts",
+      "import": "./dist/investigations/index.js"
+    }
+  }
+}

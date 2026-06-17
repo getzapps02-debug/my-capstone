@@ -1,0 +1,31 @@
+{
+  "name": "api",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "tsx --conditions development watch src/server.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint",
+    "format": "prettier --write \"**/*.{ts}\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --exclude dist/**"
+  },
+  "dependencies": {
+    "@workspace/contracts": "workspace:*",
+    "@workspace/database": "workspace:*",
+    "fastify": "^5.8.0",
+    "fastify-type-provider-zod": "^6.1.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10",
+    "@types/node": "^24",
+    "eslint": "^10",
+    "globals": "^17",
+    "tsx": "^4.21.0",
+    "typescript": "~6",
+    "typescript-eslint": "^8",
+    "vitest": "^4.1.0"
+  }
+}

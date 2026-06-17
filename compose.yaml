@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: shortfall
+      POSTGRES_USER: shortfall
+      POSTGRES_PASSWORD: shortfall
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shortfall -d shortfall"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - shortfall-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks:
+      - shortfall-local
+
+networks:
+  shortfall-local:
+    internal: true
+
+volumes:
+  shortfall-postgres-data:

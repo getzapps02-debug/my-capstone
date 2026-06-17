@@ -832,12 +832,12 @@ So that Contributor analysis can exclude movement between accounts and reduce im
 **Given** I inspect a refund Transaction
 **When** I link it to an affected source Transaction
 **Then** the refund relationship is saved locally
-**And** the relationship is available for later Contributor impact calculations without requiring Contributor groups to exist in this story.
+**And** the relationship is available for later Contributor impact calculations without requiring Epic 4 analysis to exist in this story.
 
 **Given** a Refund link is incomplete or unresolved
 **When** the evidence is inspected
 **Then** the unresolved Refund is shown as a limitation
-**And** the system does not silently alter ranking without a supported relationship.
+**And** the stored relationship remains unavailable for later impact calculations until it is resolved.
 
 **Given** a Transfer or Refund relationship changes
 **When** the update is saved
@@ -884,7 +884,7 @@ So that I can explain evidence without confusing user-provided notes with import
 
 **Given** Obligation and Context tests run
 **When** linked Obligations, unlinked Obligations, Transaction Context, Investigation Context, and missing Context paths are evaluated
-**Then** ranking rules remain deterministic
+**Then** stored evidence boundaries and later ranking-use rules remain deterministic
 **And** user-provided evidence remains distinguishable from imported facts and derived findings.
 
 ### Story 3.6: Export Account Transactions
@@ -1180,7 +1180,7 @@ So that the Investigation shows only evidence-supported contributors to the bala
 **Then** duplicate Transactions and Transfers are excluded
 **And** exclusions are visible as evidence limitations where relevant.
 
-**Given** Refunds are linked to affected Transactions or Contributor groups
+**Given** Refunds are linked to affected source Transactions
 **When** Contributor impact is calculated
 **Then** linked Refunds reduce the monetary impact of their related Contributor
 **And** unresolved Refunds are shown as limitations instead of silently altering results.
