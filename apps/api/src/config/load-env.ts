@@ -1,23 +1,7 @@
 import { existsSync, readFileSync } from "node:fs"
-import { dirname, resolve } from "node:path"
-import { fileURLToPath } from "node:url"
+import { resolve } from "node:path"
 
-loadLocalEnv()
-
-const projectRoot = dirname(fileURLToPath(import.meta.url))
-
-export default {
-  schema: resolve(projectRoot, "packages/database/src/schema/index.ts"),
-  out: resolve(projectRoot, "packages/database/migrations"),
-  dialect: "postgresql",
-  dbCredentials: {
-    url:
-      process.env.DATABASE_URL ??
-      "postgres://shortfall:shortfall@127.0.0.1:5432/shortfall",
-  },
-}
-
-function loadLocalEnv(path = ".env") {
+export function loadLocalEnv(path = ".env") {
   const envPath = resolve(path)
 
   if (!existsSync(envPath)) {

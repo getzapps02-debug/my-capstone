@@ -11,7 +11,7 @@
         "id": {
           "name": "id",
           "type": "text",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true
         },
         "title": {
@@ -58,7 +58,15 @@
         }
       },
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "investigation_entries_dataset_owner_id_pk": {
+          "name": "investigation_entries_dataset_owner_id_pk",
+          "columns": [
+            "dataset_owner",
+            "id"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {

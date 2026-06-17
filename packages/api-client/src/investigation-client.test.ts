@@ -55,4 +55,50 @@ describe("investigation client", () => {
         "Saved investigation is unavailable from local persistence right now.",
     })
   })
+
+  it("returns a safe message when the response body is invalid JSON", async () => {
+    const result = await getCurrentSampleInvestigation(
+      "",
+      vi.fn(async () => new Response("not-json", { status: 200 }))
+    )
+
+    expect(result).toEqual({
+      ok: false,
+      message:
+        "Saved investigation is unavailable from local persistence right now.",
+    })
+  })
+
+  it("returns a safe message when the response schema is invalid", async () => {
+    const result = await getCurrentSampleInvestigation(
+      "",
+      vi.fn(
+        async () =>
+          new Response(JSON.stringify({ investigation: { id: "" } }), {
+            status: 200,
+          })
+      )
+    )
+
+    expect(result).toEqual({
+      ok: false,
+      message:
+        "Saved investigation is unavailable from local persistence right now.",
+    })
+  })
+
+  it("returns a safe message when fetch rejects", async () => {
+    const result = await getCurrentSampleInvestigation(
+      "",
+      vi.fn(async () => {
+        throw new Error("network details")
+      })
+    )
+
+    expect(result).toEqual({
+      ok: false,
+      message:
+        "Saved investigation is unavailable from local persistence right now.",
+    })
+  })
 })

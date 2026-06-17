@@ -1,55 +1,78 @@
-import { describe, expect, it } from "vitest"
+import { afterAll, beforeEach, describe, expect, it } from "vitest"
 
 import {
+  DrizzleInvestigationRepository,
   SAMPLE_INVESTIGATION_ID,
   mapInvestigationEntry,
-  type InvestigationRepositoryPort,
 } from "./investigation-repository.js"
+import { createDatabaseClient } from "../client.js"
+import { investigationEntries } from "../schema/index.js"
 
-class MemoryInvestigationRepository implements InvestigationRepositoryPort {
-  private entry: Awaited<
-    ReturnType<InvestigationRepositoryPort["getCurrentSampleInvestigation"]>
-  > = null
-
-  async ensureSampleInvestigation() {
-    this.entry = {
-      id: SAMPLE_INVESTIGATION_ID,
-      title: "Sample shortfall investigation",
-      status: "draft",
-      createdAt: "2026-06-17T00:00:00.000Z",
-      datasetOwner: "sample",
-    }
-
-    return this.entry
-  }
-
-  async getCurrentSampleInvestigation() {
-    return this.entry
-  }
-
-  async clearSampleInvestigation() {
-    this.entry = null
-  }
-}
+const databaseUrl = process.env.DATABASE_URL
+const maybeDescribe = databaseUrl ? describe : describe.skip
+const client = databaseUrl ? createDatabaseClient(databaseUrl) : null
 
 describe("investigation repository contract", () => {
-  it("writes, reads, and clears the sample investigation deterministically", async () => {
-    const repository = new MemoryInvestigationRepository()
+  maybeDescribe("Drizzle repository", () => {
+    const repository = client
+      ? new DrizzleInvestigationRepository(client.db)
+      : null
 
-    expect(await repository.getCurrentSampleInvestigation()).toBeNull()
-
-    const saved = await repository.ensureSampleInvestigation()
-    expect(saved).toMatchObject({
-      id: SAMPLE_INVESTIGATION_ID,
-      title: "Sample shortfall investigation",
-      status: "draft",
-      datasetOwner: "sample",
+    beforeEach(async () => {
+      await client?.db.delete(investigationEntries)
     })
 
-    expect(await repository.getCurrentSampleInvestigation()).toEqual(saved)
+    afterAll(async () => {
+      await client?.close()
+    })
 
-    await repository.clearSampleInvestigation()
-    expect(await repository.getCurrentSampleInvestigation()).toBeNull()
+    it("writes, reads, and clears the sample investigation deterministically", async () => {
+      expect(repository).not.toBeNull()
+
+      if (!repository) {
+        return
+      }
+
+      expect(await repository.getCurrentSampleInvestigation()).toBeNull()
+
+      const saved = await repository.ensureSampleInvestigation()
+      expect(saved).toMatchObject({
+        id: SAMPLE_INVESTIGATION_ID,
+        title: "Sample shortfall investigation",
+        status: "draft",
+        datasetOwner: "sample",
+      })
+
+      expect(await repository.getCurrentSampleInvestigation()).toEqual(saved)
+
+      await repository.clearSampleInvestigation()
+      expect(await repository.getCurrentSampleInvestigation()).toBeNull()
+    })
+
+    it("keeps sample and personal rows separated by composite identity", async () => {
+      expect(repository).not.toBeNull()
+
+      if (!repository || !client) {
+        return
+      }
+
+      await client.db.insert(investigationEntries).values({
+        id: SAMPLE_INVESTIGATION_ID,
+        title: "Personal investigation",
+        status: "active",
+        datasetOwner: "personal",
+      })
+
+      const saved = await repository.ensureSampleInvestigation()
+      const rows = await client.db.select().from(investigationEntries)
+
+      expect(saved.datasetOwner).toBe("sample")
+      expect(rows).toHaveLength(2)
+      expect(rows.map((row) => row.datasetOwner).sort()).toEqual([
+        "personal",
+        "sample",
+      ])
+    })
   })
 
   it("maps database rows to stable API-safe values", () => {

@@ -1,12 +1,24 @@
 import {
   type HealthResponse,
+  type ReadinessResponse,
   healthResponseSchema,
+  readinessResponseSchema,
 } from "@workspace/contracts/health"
 
 export type HealthClientResult =
   | {
       ok: true
       data: HealthResponse
+    }
+  | {
+      ok: false
+      message: string
+    }
+
+export type ReadinessClientResult =
+  | {
+      ok: true
+      data: ReadinessResponse
     }
   | {
       ok: false
@@ -35,6 +47,46 @@ export async function getHealth(
 
     const body = await response.json()
     const parsed = healthResponseSchema.safeParse(body)
+
+    if (!parsed.success) {
+      return {
+        ok: false,
+        message: unavailableMessage,
+      }
+    }
+
+    return {
+      ok: true,
+      data: parsed.data,
+    }
+  } catch {
+    return {
+      ok: false,
+      message: unavailableMessage,
+    }
+  }
+}
+
+export async function getReadiness(
+  baseUrl = "",
+  fetcher: typeof fetch = fetch
+): Promise<ReadinessClientResult> {
+  try {
+    const response = await fetcher(`${baseUrl}/ready`, {
+      headers: {
+        Accept: "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        message: unavailableMessage,
+      }
+    }
+
+    const body = await response.json()
+    const parsed = readinessResponseSchema.safeParse(body)
 
     if (!parsed.success) {
       return {

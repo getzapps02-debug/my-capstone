@@ -1,6 +1,6 @@
 # Story 1.3: Add Local Persistence Foundation
 
-Status: review
+Status: done
 
 ## Story
 
@@ -57,6 +57,19 @@ so that future sample and personal investigation work rests on durable local sto
   - [x] Run package-level database tests.
   - [x] Run API/client/contract/web tests that cover the new route and display behavior.
   - [x] Run root validation commands: `pnpm build`, `pnpm test`, `pnpm typecheck`, and `pnpm lint`.
+
+### Review Findings
+
+- [x] [Review][Patch] GET current sample route writes instead of retrieving persisted state [apps/api/src/features/investigations/investigation-routes.ts:35]
+- [x] [Review][Patch] Real API path cannot return the documented no-data state because the GET route always upserts [apps/api/src/features/investigations/investigation-routes.ts:35]
+- [x] [Review][Patch] Persistence tests use an in-memory fake instead of exercising the Drizzle/PostgreSQL repository, reset, seed, read, and clear path [packages/database/src/repositories/investigation-repository.test.ts:9]
+- [x] [Review][Patch] Documented migration command can fall back to the Compose-only `postgres` hostname instead of the host-reachable local database URL [drizzle.config.ts:8]
+- [x] [Review][Patch] Sample and personal investigation records can collide because identity/upsert conflict only uses `id` while ownership is separate [packages/database/migrations/0000_initial_investigation_entries.sql:2]
+- [x] [Review][Patch] Investigation route maps any `Error` to persistence unavailable instead of rethrowing unexpected failures [apps/api/src/features/investigations/investigation-routes.ts:41]
+- [x] [Review][Patch] API-owned PostgreSQL pool is never closed on Fastify shutdown [apps/api/src/features/investigations/investigation-routes.ts:68]
+- [x] [Review][Patch] Drizzle schema omits the check constraints present in the committed SQL migration, creating drift risk for future generated migrations [packages/database/src/schema/investigation-entries.ts:3]
+- [x] [Review][Patch] API startup does not load copied `.env` values for `DATABASE_URL` [apps/api/src/server.ts:1]
+- [x] [Review][Patch] Web shell can remain stuck on checking when injected clients reject [apps/web/src/App.tsx:56]
 
 ## Dev Notes
 
@@ -156,6 +169,7 @@ GPT-5 Codex
 - 2026-06-17T14:58:06+08:00: root `pnpm test` passed.
 - 2026-06-17T15:00:00+08:00: root `pnpm typecheck` and `pnpm lint` passed.
 - 2026-06-17T15:02:36+08:00: `docker compose config` passed for loopback-only PostgreSQL binding.
+- 2026-06-17T16:20:32+08:00: code review patches applied; root `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm build`, `docker compose config`, documented database migration, and live PostgreSQL-backed database repository tests passed.
 
 ### Completion Notes List
 
@@ -165,6 +179,7 @@ GPT-5 Codex
 - Updated the web shell to load the saved investigation through `@workspace/api-client` and display factual local persistence status without financial advice or causal claims.
 - Simplified the public error envelope to avoid leaking implementation details and to work with strict route response serialization.
 - Verified with root `pnpm build`, `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `docker compose config`.
+- Applied code review fixes for read-only current sample retrieval, no-data route behavior, composite dataset/id persistence identity, API pool shutdown, `.env` loading, PostgreSQL 18 Compose volume layout, and rejected-client UI failure handling.
 
 ### File List
 
@@ -173,6 +188,7 @@ GPT-5 Codex
 - `apps/api/package.json`
 - `apps/api/src/app.ts`
 - `apps/api/src/errors/error-handler.ts`
+- `apps/api/src/config/load-env.ts`
 - `apps/api/src/features/investigations/investigation-routes.test.ts`
 - `apps/api/src/features/investigations/investigation-routes.ts`
 - `apps/web/src/App.test.tsx`
@@ -206,6 +222,7 @@ GPT-5 Codex
 ### Change Log
 
 - 2026-06-17: Implemented Story 1.3 local persistence foundation and moved story to review.
+- 2026-06-17: Resolved code review findings and moved story to done.
 
 ## Story Metadata
 

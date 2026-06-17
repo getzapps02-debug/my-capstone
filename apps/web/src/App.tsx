@@ -55,13 +55,19 @@ export function App({
 
     async function checkServiceHealth() {
       setServiceStatus("checking")
-      const result = await healthClient()
+      try {
+        const result = await healthClient()
 
-      if (!isCurrent) {
-        return
+        if (!isCurrent) {
+          return
+        }
+
+        setServiceStatus(result.ok ? "available" : "unavailable")
+      } catch {
+        if (isCurrent) {
+          setServiceStatus("unavailable")
+        }
       }
-
-      setServiceStatus(result.ok ? "available" : "unavailable")
     }
 
     void checkServiceHealth()
@@ -76,37 +82,45 @@ export function App({
 
     async function loadInvestigation() {
       setInvestigationStatus("checking")
-      const result = await investigationClient()
+      try {
+        const result = await investigationClient()
 
-      if (!isCurrent) {
-        return
+        if (!isCurrent) {
+          return
+        }
+
+        if (!result.ok) {
+          setInvestigationStatus("unavailable")
+          setInvestigationTitle("")
+          setInvestigationSummary("")
+          return
+        }
+
+        if (!result.data.investigation) {
+          setInvestigationStatus("empty")
+          setInvestigationTitle("")
+          setInvestigationSummary("")
+          return
+        }
+
+        setInvestigationStatus("available")
+        setInvestigationTitle(result.data.investigation.title)
+        setInvestigationSummary(
+          `Saved locally as ${result.data.investigation.status} on ${new Date(
+            result.data.investigation.createdAt
+          ).toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })}.`
+        )
+      } catch {
+        if (isCurrent) {
+          setInvestigationStatus("unavailable")
+          setInvestigationTitle("")
+          setInvestigationSummary("")
+        }
       }
-
-      if (!result.ok) {
-        setInvestigationStatus("unavailable")
-        setInvestigationTitle("")
-        setInvestigationSummary("")
-        return
-      }
-
-      if (!result.data.investigation) {
-        setInvestigationStatus("empty")
-        setInvestigationTitle("")
-        setInvestigationSummary("")
-        return
-      }
-
-      setInvestigationStatus("available")
-      setInvestigationTitle(result.data.investigation.title)
-      setInvestigationSummary(
-        `Saved locally as ${result.data.investigation.status} on ${new Date(
-          result.data.investigation.createdAt
-        ).toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        })}.`
-      )
     }
 
     void loadInvestigation()

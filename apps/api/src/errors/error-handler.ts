@@ -1,8 +1,8 @@
-import type { FastifyPluginAsync } from "fastify"
+import type { FastifyInstance } from "fastify"
 
 import { HttpError } from "./http-error.js"
 
-export const errorHandlerPlugin: FastifyPluginAsync = async (app) => {
+export function installErrorHandlers(app: FastifyInstance) {
   app.setNotFoundHandler(async (request, reply) => {
     const requestId = getRequestId(request)
 

@@ -89,6 +89,22 @@ describe("Shortfall Investigator app shell", () => {
     expect(screen.queryByText(/stack trace/i)).toBeNull()
   })
 
+  it("shows a safe unavailable service status when the health client rejects", async () => {
+    render(
+      <App
+        healthClient={async () => {
+          throw new Error("socket details")
+        }}
+        investigationClient={emptyInvestigationClient}
+      />
+    )
+
+    expect(
+      await screen.findByText("Local service check is unavailable right now.")
+    ).toBeTruthy()
+    expect(screen.queryByText(/socket details/i)).toBeNull()
+  })
+
   it("shows the saved investigation loaded from local persistence", async () => {
     render(
       <App
@@ -123,6 +139,24 @@ describe("Shortfall Investigator app shell", () => {
           ok: false,
           message: "password=secret stack trace",
         })}
+      />
+    )
+
+    expect(
+      await screen.findByText(
+        "Saved investigation is unavailable from local persistence right now."
+      )
+    ).toBeTruthy()
+    expect(screen.queryByText(/password=secret/i)).toBeNull()
+  })
+
+  it("shows a safe persistence unavailable state when the investigation client rejects", async () => {
+    render(
+      <App
+        healthClient={async () => ({ ok: false, message: "offline" })}
+        investigationClient={async () => {
+          throw new Error("password=secret stack trace")
+        }}
       />
     )
 

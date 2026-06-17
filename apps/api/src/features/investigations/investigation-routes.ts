@@ -17,7 +17,11 @@ export type InvestigationRoutesOptions = {
 export const investigationRoutes: FastifyPluginAsyncZod<
   InvestigationRoutesOptions
 > = async (app, options) => {
-  const getRepository = createRepositoryFactory(options.repository)
+  const { close, getRepository } = createRepositoryFactory(options.repository)
+
+  app.addHook("onClose", async () => {
+    await close()
+  })
 
   app.get(
     "/api/v1/investigations/current-sample",
@@ -32,13 +36,13 @@ export const investigationRoutes: FastifyPluginAsyncZod<
     async (request, reply) => {
       try {
         const repository = getRepository()
-        const investigation = await repository.ensureSampleInvestigation()
+        const investigation = await repository.getCurrentSampleInvestigation()
 
         return {
           investigation,
         }
       } catch (error) {
-        if (error instanceof PersistenceError || error instanceof Error) {
+        if (error instanceof PersistenceError) {
           return reply.status(503).send({
             code: "persistence_unavailable",
             message:
@@ -60,14 +64,23 @@ function createRepositoryFactory(repository?: InvestigationRepositoryPort) {
   let databaseClient: ReturnType<typeof createDatabaseClient> | undefined
   let databaseRepository: InvestigationRepositoryPort | undefined = repository
 
-  return () => {
-    if (databaseRepository) {
+  return {
+    async close() {
+      await databaseClient?.close()
+      databaseClient = undefined
+      if (!repository) {
+        databaseRepository = undefined
+      }
+    },
+    getRepository() {
+      if (databaseRepository) {
+        return databaseRepository
+      }
+
+      databaseClient = createDatabaseClient()
+      databaseRepository = new DrizzleInvestigationRepository(databaseClient.db)
+
       return databaseRepository
-    }
-
-    databaseClient = createDatabaseClient()
-    databaseRepository = new DrizzleInvestigationRepository(databaseClient.db)
-
-    return databaseRepository
+    },
   }
 }

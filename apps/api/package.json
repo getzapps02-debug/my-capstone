@@ -12,6 +12,8 @@
     "test": "vitest run --exclude dist/**"
   },
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/helmet": "^13.0.2",
     "@workspace/contracts": "workspace:*",
     "@workspace/database": "workspace:*",
     "fastify": "^5.8.0",

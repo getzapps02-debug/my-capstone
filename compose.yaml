@@ -11,7 +11,7 @@ services:
       timeout: 5s
       retries: 10
     volumes:
-      - shortfall-postgres-data:/var/lib/postgresql/data
+      - shortfall-postgres-18-data:/var/lib/postgresql
     ports:
       - "127.0.0.1:5432:5432"
     networks:
@@ -19,7 +19,6 @@ services:
 
 networks:
   shortfall-local:
-    internal: true
 
 volumes:
-  shortfall-postgres-data:
+  shortfall-postgres-18-data:

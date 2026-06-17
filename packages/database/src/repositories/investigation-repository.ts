@@ -66,7 +66,7 @@ export class DrizzleInvestigationRepository
           datasetOwner: "sample",
         })
         .onConflictDoUpdate({
-          target: investigationEntries.id,
+          target: [investigationEntries.datasetOwner, investigationEntries.id],
           set: {
             title: input.title,
             status: input.status,
