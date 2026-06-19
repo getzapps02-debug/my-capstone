@@ -4,8 +4,11 @@ import { useEffect, useState } from "react"
 import {
   getCurrentSampleInvestigation,
   getHealth,
+  loadSampleDataset,
+  resetSampleDataset,
   type CurrentSampleInvestigationClientResult,
   type HealthClientResult,
+  type SampleDatasetClientResult,
 } from "@workspace/api-client"
 
 const navItems = [
@@ -33,15 +36,30 @@ const navItems = [
 
 type ServiceStatus = "checking" | "available" | "unavailable"
 type InvestigationStatus = "checking" | "available" | "empty" | "unavailable"
+type SampleDataset = Extract<
+  SampleDatasetClientResult,
+  { ok: true }
+>["data"]["sampleDataset"]
 
 type AppProps = {
   healthClient?: () => Promise<HealthClientResult>
   investigationClient?: () => Promise<CurrentSampleInvestigationClientResult>
+  loadSampleDatasetClient?: () => Promise<SampleDatasetClientResult>
+  localRequestToken?: string
+  resetSampleDatasetClient?: () => Promise<SampleDatasetClientResult>
 }
+
+const sampleDataUnavailableMessage =
+  "Sample Data is unavailable from local persistence right now."
+const sampleDataResetUnavailableMessage =
+  "Sample Data could not be reset from local persistence right now."
 
 export function App({
   healthClient = getHealth,
   investigationClient = getCurrentSampleInvestigation,
+  localRequestToken = import.meta.env.VITE_LOCAL_REQUEST_TOKEN ?? "",
+  loadSampleDatasetClient = () => loadSampleDataset("", localRequestToken),
+  resetSampleDatasetClient = () => resetSampleDataset("", localRequestToken),
 }: AppProps) {
   const [serviceStatus, setServiceStatus] =
     useState<ServiceStatus>("checking")
@@ -49,6 +67,8 @@ export function App({
     useState<InvestigationStatus>("checking")
   const [investigationTitle, setInvestigationTitle] = useState("")
   const [investigationSummary, setInvestigationSummary] = useState("")
+  const [sampleDataset, setSampleDataset] = useState<SampleDataset | null>(null)
+  const [sampleActionStatus, setSampleActionStatus] = useState("")
 
   useEffect(() => {
     let isCurrent = true
@@ -100,6 +120,7 @@ export function App({
           setInvestigationStatus("empty")
           setInvestigationTitle("")
           setInvestigationSummary("")
+          setSampleDataset(null)
           return
         }
 
@@ -114,11 +135,13 @@ export function App({
             day: "numeric",
           })}.`
         )
+        setSampleDataset(null)
       } catch {
         if (isCurrent) {
           setInvestigationStatus("unavailable")
           setInvestigationTitle("")
           setInvestigationSummary("")
+          setSampleDataset(null)
         }
       }
     }
@@ -143,6 +166,33 @@ export function App({
     unavailable:
       "Saved investigation is unavailable from local persistence right now.",
   } satisfies Record<InvestigationStatus, string>
+
+  async function runSampleAction(
+    action: () => Promise<SampleDatasetClientResult>,
+    successMessage: string,
+    failureMessage: string
+  ) {
+    setSampleActionStatus("")
+
+    try {
+      const result = await action()
+
+      if (!result.ok) {
+        setSampleActionStatus(failureMessage)
+        return
+      }
+
+      setSampleDataset(result.data.sampleDataset)
+      setInvestigationStatus("available")
+      setInvestigationTitle(result.data.sampleDataset.investigation.title)
+      setInvestigationSummary(
+        `${result.data.sampleDataset.label} / ${result.data.sampleDataset.description}`
+      )
+      setSampleActionStatus(successMessage)
+    } catch {
+      setSampleActionStatus(failureMessage)
+    }
+  }
 
   return (
     <div className="min-h-svh bg-[#F8FAFC] text-[#172033]">
@@ -245,6 +295,86 @@ export function App({
                 <span>{investigationStatusCopy[investigationStatus]}</span>
               )}
             </div>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {investigationStatus === "empty" ? (
+                <Button
+                  className="rounded-md bg-[#1D4ED8] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1E40AF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB]"
+                  onClick={() =>
+                    void runSampleAction(
+                      loadSampleDatasetClient,
+                      "Sample Data loaded locally.",
+                      sampleDataUnavailableMessage
+                    )
+                  }
+                  type="button"
+                >
+                  Load Sample Data
+                </Button>
+              ) : null}
+              {investigationStatus === "available" ? (
+                <Button
+                  className="rounded-md border border-[#CBD5E1] bg-white px-4 py-2 text-sm font-semibold text-[#172033] shadow-none hover:bg-[#F1F5F9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB]"
+                  onClick={() =>
+                    void runSampleAction(
+                      resetSampleDatasetClient,
+                      "Sample Data reset locally.",
+                      sampleDataResetUnavailableMessage
+                    )
+                  }
+                  type="button"
+                  variant="ghost"
+                >
+                  Reset Sample Data
+                </Button>
+              ) : null}
+            </div>
+            <p className="mt-3 text-sm leading-6 text-[#5F6B7A]">
+              Only Sample Data is reset. Personal Accounts and records are not
+              changed by these example-data actions.
+            </p>
+            {sampleActionStatus ? (
+              <div
+                aria-live="polite"
+                className="mt-3 rounded-md border border-[#CBD5E1] bg-[#F8FAFC] px-4 py-3 text-sm leading-6 text-[#334155]"
+                role="status"
+              >
+                {sampleActionStatus}
+              </div>
+            ) : null}
+            {sampleDataset ? (
+              <section
+                aria-labelledby="sample-data-heading"
+                className="mt-5 rounded-md border border-[#CBD5E1] bg-[#F8FAFC] p-4"
+              >
+                <p className="text-xs font-semibold text-[#1D4ED8]">
+                  {sampleDataset.label}
+                </p>
+                <h3
+                  className="mt-1 text-base font-semibold"
+                  id="sample-data-heading"
+                >
+                  Example evidence entry points
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-[#5F6B7A]">
+                  {sampleDataset.description}
+                </p>
+                <ul className="mt-3 grid gap-2">
+                  {sampleDataset.scenarios.map((scenario) => (
+                    <li
+                      className="rounded-md border border-[#CBD5E1] bg-white p-3"
+                      key={scenario.id}
+                    >
+                      <p className="text-sm font-semibold text-[#172033]">
+                        {scenario.label}
+                      </p>
+                      <p className="mt-1 text-sm leading-6 text-[#5F6B7A]">
+                        {scenario.summary}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
             <div className="mt-6 grid gap-3 md:grid-cols-3">
               <div className="rounded-md border border-[#CBD5E1] bg-[#F8FAFC] p-4">
                 <h3 className="text-sm font-semibold">Local first</h3>

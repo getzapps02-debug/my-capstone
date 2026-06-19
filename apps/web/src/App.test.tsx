@@ -1,4 +1,4 @@
-import { cleanup, render, screen, within } from "@testing-library/react"
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react"
 import { afterEach, describe, expect, it } from "vitest"
 
 import { App } from "./App"
@@ -129,6 +129,182 @@ describe("Shortfall Investigator app shell", () => {
     ).toBeTruthy()
     expect(screen.getByText(/Saved locally as draft/i)).toBeTruthy()
     expect(screen.queryByText(/financial advice/i)).toBeNull()
+  })
+
+  it("offers Sample Data loading from the empty Investigate state", async () => {
+    render(
+      <App
+        healthClient={async () => ({ ok: false, message: "offline" })}
+        investigationClient={emptyInvestigationClient}
+        loadSampleDatasetClient={async () => ({
+          ok: true,
+          data: {
+            sampleDataset: {
+              datasetOwner: "sample",
+              label: "Sample Data",
+              description:
+                "Synthetic example evidence for trying the local investigation workflow.",
+              investigation: {
+                id: "sample-investigation",
+                title: "Sample shortfall investigation",
+                status: "draft",
+                createdAt: "2026-06-17T00:00:00.000Z",
+                datasetOwner: "sample",
+              },
+              scenarios: [
+                {
+                  id: "complete-reconciled-shortfall",
+                  label: "Complete reconciled shortfall",
+                  readiness: "ready",
+                  summary:
+                    "Example evidence with reconciled balances for a future Shortfall walkthrough.",
+                },
+                {
+                  id: "insufficient-evidence",
+                  label: "Insufficient evidence",
+                  readiness: "insufficient-evidence",
+                  summary:
+                    "Example evidence reserved for later refusal behavior when required records are missing.",
+                },
+              ],
+            },
+          },
+        })}
+      />
+    )
+
+    const loadButton = await screen.findByRole("button", {
+      name: "Load Sample Data",
+    })
+    fireEvent.click(loadButton)
+
+    expect(await screen.findByText("Sample Data")).toBeTruthy()
+    expect(screen.getByText("Complete reconciled shortfall")).toBeTruthy()
+    expect(screen.getByText("Insufficient evidence")).toBeTruthy()
+    expect(screen.queryByText(/caused your Shortfall|you overspent because|advice/i)).toBeNull()
+  })
+
+  it("offers a Sample Data reset without exposing personal-data wording as affected", async () => {
+    render(
+      <App
+        healthClient={async () => ({ ok: false, message: "offline" })}
+        investigationClient={async () => ({
+          ok: true,
+          data: {
+            investigation: {
+              id: "sample-investigation",
+              title: "Sample shortfall investigation",
+              status: "draft",
+              createdAt: "2026-06-17T00:00:00.000Z",
+              datasetOwner: "sample",
+            },
+          },
+        })}
+        resetSampleDatasetClient={async () => ({
+          ok: true,
+          data: {
+            sampleDataset: {
+              datasetOwner: "sample",
+              label: "Sample Data",
+              description:
+                "Synthetic example evidence for trying the local investigation workflow.",
+              investigation: {
+                id: "sample-investigation",
+                title: "Sample shortfall investigation",
+                status: "draft",
+                createdAt: "2026-06-17T00:00:00.000Z",
+                datasetOwner: "sample",
+              },
+              scenarios: [
+                {
+                  id: "complete-reconciled-shortfall",
+                  label: "Complete reconciled shortfall",
+                  readiness: "ready",
+                  summary:
+                    "Example evidence with reconciled balances for a future Shortfall walkthrough.",
+                },
+                {
+                  id: "insufficient-evidence",
+                  label: "Insufficient evidence",
+                  readiness: "insufficient-evidence",
+                  summary:
+                    "Example evidence reserved for later refusal behavior when required records are missing.",
+                },
+              ],
+            },
+          },
+        })}
+      />
+    )
+
+    const resetButton = await screen.findByRole("button", {
+      name: "Reset Sample Data",
+    })
+    fireEvent.click(resetButton)
+
+    expect(await screen.findByText("Sample Data reset locally.")).toBeTruthy()
+    expect(screen.getByText(/Only Sample Data is reset/i)).toBeTruthy()
+    expect(screen.queryByText(/password=secret/i)).toBeNull()
+  })
+
+  it("shows a safe Sample Data command failure message", async () => {
+    render(
+      <App
+        healthClient={async () => ({ ok: false, message: "offline" })}
+        investigationClient={emptyInvestigationClient}
+        loadSampleDatasetClient={async () => ({
+          ok: false,
+          message: "password=secret stack trace",
+        })}
+      />
+    )
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Load Sample Data" })
+    )
+
+    expect(
+      await screen.findByText(
+        "Sample Data is unavailable from local persistence right now."
+      )
+    ).toBeTruthy()
+    expect(screen.queryByText(/password=secret/i)).toBeNull()
+  })
+
+  it("shows reset-specific safe failure copy", async () => {
+    render(
+      <App
+        healthClient={async () => ({ ok: false, message: "offline" })}
+        investigationClient={async () => ({
+          ok: true,
+          data: {
+            investigation: {
+              id: "sample-investigation",
+              title: "Sample shortfall investigation",
+              status: "draft",
+              createdAt: "2026-06-17T00:00:00.000Z",
+              datasetOwner: "sample",
+            },
+          },
+        })}
+        resetSampleDatasetClient={async () => ({
+          ok: false,
+          message:
+            "Sample Data could not be reset from local persistence right now.",
+        })}
+      />
+    )
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Reset Sample Data" })
+    )
+
+    expect(
+      await screen.findByText(
+        "Sample Data could not be reset from local persistence right now."
+      )
+    ).toBeTruthy()
+    expect(screen.queryByText(/password=secret/i)).toBeNull()
   })
 
   it("shows a safe persistence unavailable state", async () => {

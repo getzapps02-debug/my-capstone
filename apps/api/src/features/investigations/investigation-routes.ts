@@ -1,5 +1,6 @@
 import {
   currentSampleInvestigationResponseSchema,
+  sampleDatasetResponseSchema,
 } from "@workspace/contracts/investigations"
 import { errorResponseSchema } from "@workspace/contracts/errors"
 import {
@@ -47,6 +48,80 @@ export const investigationRoutes: FastifyPluginAsyncZod<
             code: "persistence_unavailable",
             message:
               "Saved investigation is unavailable from local persistence right now.",
+            requestId:
+              typeof request.id === "string" && request.id.trim() !== ""
+                ? request.id
+                : "unknown-request",
+          })
+        }
+
+        throw error
+      }
+    }
+  )
+
+  app.post(
+    "/api/v1/investigations/sample/load",
+    {
+      schema: {
+        response: {
+          200: sampleDatasetResponseSchema,
+          401: errorResponseSchema,
+          503: errorResponseSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        const repository = getRepository()
+        const sampleDataset = await repository.loadSampleDataset()
+
+        return {
+          sampleDataset,
+        }
+      } catch (error) {
+        if (error instanceof PersistenceError) {
+          return reply.status(503).send({
+            code: "persistence_unavailable",
+            message:
+              "Sample Data is unavailable from local persistence right now.",
+            requestId:
+              typeof request.id === "string" && request.id.trim() !== ""
+                ? request.id
+                : "unknown-request",
+          })
+        }
+
+        throw error
+      }
+    }
+  )
+
+  app.post(
+    "/api/v1/investigations/sample/reset",
+    {
+      schema: {
+        response: {
+          200: sampleDatasetResponseSchema,
+          401: errorResponseSchema,
+          503: errorResponseSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        const repository = getRepository()
+        const sampleDataset = await repository.resetSampleDataset()
+
+        return {
+          sampleDataset,
+        }
+      } catch (error) {
+        if (error instanceof PersistenceError) {
+          return reply.status(503).send({
+            code: "persistence_unavailable",
+            message:
+              "Sample Data could not be reset from local persistence right now.",
             requestId:
               typeof request.id === "string" && request.id.trim() !== ""
                 ? request.id

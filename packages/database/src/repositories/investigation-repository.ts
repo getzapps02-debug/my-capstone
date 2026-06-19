@@ -8,6 +8,10 @@ export const SAMPLE_INVESTIGATION_ID = "sample-investigation"
 
 export type DatasetOwner = "sample" | "personal"
 export type InvestigationStatus = "draft" | "active"
+export type SampleScenarioId =
+  | "complete-reconciled-shortfall"
+  | "insufficient-evidence"
+export type SampleScenarioReadiness = "ready" | "insufficient-evidence"
 
 export type InvestigationEntry = {
   id: string
@@ -22,12 +26,29 @@ export type SampleInvestigationInput = {
   status: InvestigationStatus
 }
 
+export type SampleScenario = {
+  id: SampleScenarioId
+  label: string
+  readiness: SampleScenarioReadiness
+  summary: string
+}
+
+export type SampleDataset = {
+  datasetOwner: "sample"
+  label: string
+  description: string
+  investigation: InvestigationEntry
+  scenarios: SampleScenario[]
+}
+
 export type InvestigationRepositoryPort = {
   ensureSampleInvestigation(
     input?: SampleInvestigationInput
   ): Promise<InvestigationEntry>
   getCurrentSampleInvestigation(): Promise<InvestigationEntry | null>
   clearSampleInvestigation(): Promise<void>
+  loadSampleDataset(): Promise<SampleDataset>
+  resetSampleDataset(): Promise<SampleDataset>
 }
 
 type Database = NodePgDatabase<typeof schema>
@@ -36,6 +57,26 @@ const defaultSampleInvestigation = {
   title: "Sample shortfall investigation",
   status: "draft",
 } satisfies SampleInvestigationInput
+
+const sampleDatasetScenarios = [
+  {
+    id: "complete-reconciled-shortfall",
+    label: "Complete reconciled shortfall",
+    readiness: "ready",
+    summary:
+      "Example evidence with reconciled balances for a future Shortfall walkthrough.",
+  },
+  {
+    id: "insufficient-evidence",
+    label: "Insufficient evidence",
+    readiness: "insufficient-evidence",
+    summary:
+      "Example evidence reserved for later refusal behavior when required records are missing.",
+  },
+] satisfies SampleScenario[]
+
+const sampleDatasetDescription =
+  "Synthetic example evidence for trying the local investigation workflow."
 
 export class PersistenceError extends Error {
   readonly code = "persistence_error"
@@ -123,6 +164,67 @@ export class DrizzleInvestigationRepository
         cause,
       })
     }
+  }
+
+  async loadSampleDataset(): Promise<SampleDataset> {
+    const investigation = await this.ensureSampleInvestigation()
+
+    return buildSampleDataset(investigation)
+  }
+
+  async resetSampleDataset(): Promise<SampleDataset> {
+    try {
+      const investigation = await this.db.transaction(async (tx) => {
+        await tx
+          .delete(investigationEntries)
+          .where(
+            and(
+              eq(investigationEntries.id, SAMPLE_INVESTIGATION_ID),
+              eq(investigationEntries.datasetOwner, "sample")
+            )
+          )
+
+        const [row] = await tx
+          .insert(investigationEntries)
+          .values({
+            id: SAMPLE_INVESTIGATION_ID,
+            title: defaultSampleInvestigation.title,
+            status: defaultSampleInvestigation.status,
+            datasetOwner: "sample",
+          })
+          .returning()
+
+        if (!row) {
+          throw new Error("No investigation row returned after reset.")
+        }
+
+        return mapInvestigationEntry(row)
+      })
+
+      return buildSampleDataset(investigation)
+    } catch (cause) {
+      if (cause instanceof PersistenceError) {
+        throw cause
+      }
+
+      throw new PersistenceError("Could not reset the sample dataset.", {
+        cause,
+      })
+    }
+  }
+}
+
+export function getSampleDatasetScenarios(): SampleScenario[] {
+  return sampleDatasetScenarios.map((scenario) => ({ ...scenario }))
+}
+
+function buildSampleDataset(investigation: InvestigationEntry): SampleDataset {
+  return {
+    datasetOwner: "sample",
+    label: "Sample Data",
+    description: sampleDatasetDescription,
+    investigation,
+    scenarios: getSampleDatasetScenarios(),
   }
 }
 

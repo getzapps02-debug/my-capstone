@@ -3,6 +3,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest"
 import {
   DrizzleInvestigationRepository,
   SAMPLE_INVESTIGATION_ID,
+  getSampleDatasetScenarios,
   mapInvestigationEntry,
 } from "./investigation-repository.js"
 import { createDatabaseClient } from "../client.js"
@@ -49,6 +50,51 @@ describe("investigation repository contract", () => {
       expect(await repository.getCurrentSampleInvestigation()).toBeNull()
     })
 
+    it("loads and resets deterministic sample dataset state", async () => {
+      expect(repository).not.toBeNull()
+
+      if (!repository) {
+        return
+      }
+
+      const loaded = await repository.loadSampleDataset()
+      const loadedAgain = await repository.loadSampleDataset()
+
+      expect(loaded).toMatchObject({
+        datasetOwner: "sample",
+        label: "Sample Data",
+        investigation: {
+          id: SAMPLE_INVESTIGATION_ID,
+          datasetOwner: "sample",
+        },
+      })
+      expect(loaded.scenarios.map((scenario) => scenario.id)).toEqual([
+        "complete-reconciled-shortfall",
+        "insufficient-evidence",
+      ])
+      expect(loadedAgain).toMatchObject({
+        label: loaded.label,
+        description: loaded.description,
+        investigation: {
+          id: loaded.investigation.id,
+          title: loaded.investigation.title,
+          status: loaded.investigation.status,
+          datasetOwner: loaded.investigation.datasetOwner,
+        },
+        scenarios: loaded.scenarios,
+      })
+
+      await repository.clearSampleInvestigation()
+      expect(await repository.getCurrentSampleInvestigation()).toBeNull()
+
+      const reset = await repository.resetSampleDataset()
+      expect(reset.scenarios).toEqual(loaded.scenarios)
+      expect(reset.investigation).toMatchObject({
+        id: SAMPLE_INVESTIGATION_ID,
+        datasetOwner: "sample",
+      })
+    })
+
     it("keeps sample and personal rows separated by composite identity", async () => {
       expect(repository).not.toBeNull()
 
@@ -73,6 +119,48 @@ describe("investigation repository contract", () => {
         "sample",
       ])
     })
+
+    it("reset keeps personal rows with sample-like IDs untouched", async () => {
+      expect(repository).not.toBeNull()
+
+      if (!repository || !client) {
+        return
+      }
+
+      await client.db.insert(investigationEntries).values({
+        id: SAMPLE_INVESTIGATION_ID,
+        title: "Personal investigation",
+        status: "active",
+        datasetOwner: "personal",
+      })
+
+      await repository.resetSampleDataset()
+
+      const rows = await client.db.select().from(investigationEntries)
+      const personalRow = rows.find((row) => row.datasetOwner === "personal")
+
+      expect(rows).toHaveLength(2)
+      expect(personalRow).toMatchObject({
+        id: SAMPLE_INVESTIGATION_ID,
+        title: "Personal investigation",
+        status: "active",
+        datasetOwner: "personal",
+      })
+    })
+  })
+
+  it("exposes required sample scenarios without advisory or causal copy", () => {
+    const scenarios = getSampleDatasetScenarios()
+
+    expect(scenarios.map((scenario) => scenario.id)).toEqual([
+      "complete-reconciled-shortfall",
+      "insufficient-evidence",
+    ])
+    expect(
+      scenarios
+        .map((scenario) => `${scenario.label} ${scenario.summary}`)
+        .join(" ")
+    ).not.toMatch(/caused your Shortfall|you overspent because|advice/i)
   })
 
   it("maps database rows to stable API-safe values", () => {
