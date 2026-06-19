@@ -4,7 +4,7 @@ baseline_commit: 205b325
 
 # Story 1.4: Enforce Local-Only Runtime Boundary
 
-Status: review
+Status: done
 
 ## Story
 
@@ -52,6 +52,10 @@ so that my financial investigation environment stays under my control.
   - [x] Add API tests for allowed local origins, rejected non-local origins, missing/invalid token rejection on a test state-changing route, and token-free `GET`/health/readiness behavior.
   - [x] Add config/static tests for forbidden remote asset/telemetry/public database exposure patterns.
   - [x] Run `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm build`, and `docker compose config`.
+
+### Review Findings
+
+- [x] [Review][Patch] Apply configured handler timeout at Fastify runtime [apps/api/src/app.ts:31]
 
 ## Dev Notes
 

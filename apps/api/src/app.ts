@@ -30,6 +30,7 @@ export async function buildApp(options: BuildAppOptions = {}) {
   } = options
   const app = Fastify({
     bodyLimit: localSecurity.bodyLimitBytes,
+    handlerTimeout: localSecurity.handlerTimeoutMs,
     requestTimeout: localSecurity.requestTimeoutMs,
     logger: true,
     ...fastifyOptions,

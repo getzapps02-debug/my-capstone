@@ -12,6 +12,20 @@ const localSecurity = {
 }
 
 describe("local security boundary", () => {
+  it("applies configured request limits and timeouts to the Fastify runtime", async () => {
+    const app = await buildApp({ logger: false, localSecurity })
+    const initialConfig = app.initialConfig as typeof app.initialConfig & {
+      handlerTimeout: number
+      requestTimeout: number
+    }
+
+    expect(initialConfig.bodyLimit).toBe(localSecurity.bodyLimitBytes)
+    expect(initialConfig.handlerTimeout).toBe(localSecurity.handlerTimeoutMs)
+    expect(initialConfig.requestTimeout).toBe(localSecurity.requestTimeoutMs)
+
+    await app.close()
+  })
+
   it("allows configured local origins and applies security headers", async () => {
     const app = await buildApp({ logger: false, localSecurity })
 

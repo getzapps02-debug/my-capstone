@@ -46,7 +46,7 @@ development_status:
   1-1-initialize-local-web-workspace: done
   1-2-establish-api-and-shared-contract-path: done
   1-3-add-local-persistence-foundation: done
-  1-4-enforce-local-only-runtime-boundary: review
+  1-4-enforce-local-only-runtime-boundary: done
   1-5-load-and-reset-sample-data: review
   1-6-resume-first-visible-investigation-state: backlog
   epic-1-retrospective: optional
